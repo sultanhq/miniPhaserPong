@@ -3,8 +3,8 @@ var gameProperties = {
   screenHeight: 32,
 
   dashSize: 2,
-  paddleLeft_x: 1,
-  paddleRight_x: 31,
+
+
 };
 
 var graphicsAssets = {
@@ -18,14 +18,11 @@ var graphicsAssets = {
 var mainState = function(game) {
   this.backgroundGraphics;
   this.ballSprite;
-  this.paddleLeftSprite;
-  this.paddleRightSprite;
 };
 
 mainState.prototype = {
   preload: function() {
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
-    game.load.image(graphicsAssets.paddleName, graphicsAssets.paddleURL);
   },
 
   create: function() {
@@ -44,6 +41,10 @@ mainState.prototype = {
       this.backgroundGraphics.moveTo(game.world.centerX, y);
       this.backgroundGraphics.lineTo(game.world.centerX, y + gameProperties.dashSize);
     }
+
+    this.ballSprite = game.add.sprite(game.world.centerX, game.world.centerY, graphicsAssets.ballName);
+    this.ballSprite.anchor.set(0.5, 0.5);
+
   },
 };
 
