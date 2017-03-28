@@ -54,8 +54,7 @@ mainState.prototype = {
   },
 
   startDemo: function() {
-    this.ballSprite.visible = false;
-    game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
+    this.resetBall();
     this.enablePaddles(false);
     game.input.onDown.add(this.startGame, this);
   },
@@ -67,10 +66,9 @@ mainState.prototype = {
   },
 
   resetBall: function() {
-    
-  },
-
-  startBall: function() {
+    this.ballSprite.reset(game.world.centerX, game.rnd.between(0, gameProperties.screenHeight));
+    this.ballSprite.visible = false;
+    game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
 
   },
 
