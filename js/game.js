@@ -5,8 +5,9 @@ var gameProperties = {
   dashSize: 2,
   paddleLeft_x: 1,
   paddleRight_x: 31,
+  paddleVelocity: 100,
 
-  ballVelocity: 50,
+  ballVelocity: 35,
   ballStartDelay: 2,
   ballRandomStartingAngleLeft: [-120, 120],
   ballRandomStartingAngleRight: [-60, 60],
@@ -25,6 +26,13 @@ var mainState = function(game) {
   this.ballSprite;
   this.paddleLeftSprite;
   this.paddleRightSprite;
+  this.paddleGroup;
+
+  this.paddleLeft_up;
+  this.paddleLeft_down;
+  this.paddleRight_up;
+  this.paddleRight_down;
+
 }
 
 mainState.prototype = {
@@ -36,11 +44,13 @@ mainState.prototype = {
   create: function() {
     this.initGraphics();
     this.initPhysics();
+    this.initKeyboard();
     this.startDemo();
   },
 
   update: function() {
-
+    this.moveLeftPaddle();
+    this.moveRightPaddle();
   },
 
   initPhysics: function() {
@@ -51,6 +61,25 @@ mainState.prototype = {
     this.ballSprite.body.collideWorldBounds = true;
     this.ballSprite.body.immovable = true;
     this.ballSprite.body.bounce.set(1);
+
+    this.paddleGroup = game.add.group();
+    this.paddleGroup.enableBody = true;
+    this.paddleGroup.physicsBodyType = Phaser.Physics.ARCADE;
+
+    this.paddleGroup.add(this.paddleLeftSprite);
+    this.paddleGroup.add(this.paddleRightSprite);
+
+    this.paddleGroup.setAll('checkWorldBounds', true);
+    this.paddleGroup.setAll('body.collideWorldBounds', true);
+    this.paddleGroup.setAll('body.immovable', true);
+  },
+
+  initKeyboard: function() {
+    this.paddleLeft_up = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    this.paddleLeft_down = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+
+    this.paddleRight_up = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+    this.paddleRight_down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
   },
 
   startDemo: function() {
@@ -61,8 +90,8 @@ mainState.prototype = {
 
   startGame: function() {
     game.input.onDown.remove(this.startGame, this);
-
     this.enablePaddles(true);
+    this.resetBall();
   },
 
   resetBall: function() {
@@ -72,9 +101,34 @@ mainState.prototype = {
 
   },
 
-  enablePaddles: function (enabled) {
-    this.paddleLeftSprite.visible = enabled;
-    this.paddleRightSprite.visible = enabled;
+  enablePaddles: function(enabled) {
+    this.paddleGroup.setAll('visible', enabled);
+    this.paddleGroup.setAll('body.enable', enabled);
+
+    this.paddleLeft_up.enabled = enabled;
+    this.paddleLeft_down.enabled = enabled;
+    this.paddleRight_up.enabled = enabled;
+    this.paddleRight_down.enabled = enabled;
+  },
+
+  moveLeftPaddle: function() {
+    if (this.paddleLeft_up.isDown) {
+      this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
+    } else if (this.paddleLeft_down.isDown) {
+      this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
+    } else {
+      this.paddleLeftSprite.body.velocity.y = 0;
+    }
+  },
+
+  moveRightPaddle: function() {
+    if (this.paddleRight_up.isDown) {
+      this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
+    } else if (this.paddleRight_down.isDown) {
+      this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
+    } else {
+      this.paddleRightSprite.body.velocity.y = 0;
+    }
   },
 
   startBall: function() {
