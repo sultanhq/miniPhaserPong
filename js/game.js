@@ -5,6 +5,11 @@ var gameProperties = {
   dashSize: 2,
   paddleLeft_x: 1,
   paddleRight_x: 31,
+
+  ballVelocity: 50,
+  ballStartDelay: 2,
+  ballRandomStartingAngleLeft: [-120, 120],
+  ballRandomStartingAngleRight: [-60, 60],
 };
 
 var graphicsAssets = {
@@ -20,7 +25,7 @@ var mainState = function(game) {
   this.ballSprite;
   this.paddleLeftSprite;
   this.paddleRightSprite;
-};
+}
 
 mainState.prototype = {
   preload: function() {
@@ -30,10 +35,35 @@ mainState.prototype = {
 
   create: function() {
     this.initGraphics();
+    this.initPhysics();
+    this.startDemo();
   },
 
   update: function() {
 
+  },
+
+  initPhysics: function() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.enable(this.ballSprite);
+
+    this.ballSprite.checkWorldBounds = true;
+    this.ballSprite.body.collideWorldBounds = true;
+    this.ballSprite.body.immovable = true;
+    this.ballSprite.body.bounce.set(1);
+  },
+
+  startDemo: function() {
+    this.ballSprite.visible = false;
+    game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
+  },
+
+  startBall: function() {
+    this.ballSprite.visible = true
+
+    var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
+
+    game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
   },
 
   initGraphics: function() {
