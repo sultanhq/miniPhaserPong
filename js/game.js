@@ -3,8 +3,8 @@ var gameProperties = {
   screenHeight: 32,
 
   dashSize: 2,
-
-
+  paddleLeft_x: 1,
+  paddleRight_x: 31,
 };
 
 var graphicsAssets = {
@@ -12,17 +12,20 @@ var graphicsAssets = {
   ballName: 'ball',
 
   paddleURL: 'assets/paddle.png',
-  paddlename: 'paddle',
+  paddleName: 'paddle',
 };
 
 var mainState = function(game) {
   this.backgroundGraphics;
   this.ballSprite;
+  this.paddleLeftSprite;
+  this.paddleRightSprite;
 };
 
 mainState.prototype = {
   preload: function() {
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
+    game.load.image(graphicsAssets.paddleName, graphicsAssets.paddleURL);
   },
 
   create: function() {
@@ -45,6 +48,11 @@ mainState.prototype = {
     this.ballSprite = game.add.sprite(game.world.centerX, game.world.centerY, graphicsAssets.ballName);
     this.ballSprite.anchor.set(0.5, 0.5);
 
+    this.paddleLeftSprite = game.add.sprite(gameProperties.paddleLeft_x, game.world.centerY, graphicsAssets.paddleName);
+    this.paddleLeftSprite.anchor.set(0.5, 0.5);
+
+    this.paddleRightSprite = game.add.sprite(gameProperties.paddleRight_x, game.world.centerY, graphicsAssets.paddleName);
+    this.paddleRightSprite.anchor.set(0.5, 0.5);
   },
 };
 
