@@ -33,7 +33,11 @@ var fontAssets = {
   scoreRight_x: gameProperties.screenWidth * 0.75,
   scoreTop_y: 0,
 
-  scoreFontStyle: {font: '8px monospace', fill: '#FFFFFF', align:'center'},
+  scoreFontStyle: {
+    font: '8px monospace',
+    fill: '#FFFFFF',
+    align: 'center'
+  },
 };
 
 var mainState = function(game) {
@@ -197,16 +201,20 @@ mainState.prototype = {
       console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
-    this.resetBall();
+    if (this.scoreLeft >= gameProperties.scoreToWin || this.scoreRight >= gameProperties.scoreToWin) {
+      this.startDemo();
+    } else {
+      this.resetBall();
+    }
   },
 
-  resetScores: function(){
+  resetScores: function() {
     this.scoreLeft = 0;
     this.scoreRight = 0;
     this.updateScoreTextFields();
   },
 
-  updateScoreTextFields: function(){
+  updateScoreTextFields: function() {
     this.tf_scoreLeft.text = this.scoreLeft;
     this.tf_scoreRight.text = this.scoreRight;
   },
@@ -244,10 +252,10 @@ mainState.prototype = {
     this.paddleRightSprite.anchor.set(0.5, 0.5);
 
     this.tf_scoreLeft = game.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
-    this.tf_scoreLeft.anchor.set(0.5,0);
+    this.tf_scoreLeft.anchor.set(0.5, 0);
 
     this.tf_scoreRight = game.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
-    this.tf_scoreRight.anchor.set(0.5,0);
+    this.tf_scoreRight.anchor.set(0.5, 0);
   },
 };
 
