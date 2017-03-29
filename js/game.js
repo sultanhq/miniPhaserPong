@@ -33,7 +33,7 @@ var fontAssets = {
   scoreRight_x: gameProperties.screenWidth * 0.75,
   scoreTop_y: 0,
 
-  scoreFontStyle: {font: '7px monospace', fill: '#FFFFFF', align:'center'},
+  scoreFontStyle: {font: '8px monospace', fill: '#FFFFFF', align:'center'},
 };
 
 var mainState = function(game) {
@@ -118,6 +118,7 @@ mainState.prototype = {
     this.enablePaddles(true);
     this.enableBoundaires(false);
     this.resetBall();
+    this.resetScores();
   },
 
   resetBall: function() {
@@ -188,12 +189,26 @@ mainState.prototype = {
   ballOutOfBounds: function() {
     if (this.ballSprite.x < 0) {
       this.missedSide = 'left';
+      this.scoreRight++;
       console.log('Player 2 scores')
     } else if (this.ballSprite.x > gameProperties.screenWidth) {
       this.missedSide = 'right';
+      this.scoreLeft++;
       console.log('Player 1 scores')
     }
+    this.updateScoreTextFields();
     this.resetBall();
+  },
+
+  resetScores: function(){
+    this.scoreLeft = 0;
+    this.scoreRight = 0;
+    this.updateScoreTextFields();
+  },
+
+  updateScoreTextFields: function(){
+    this.tf_scoreLeft.text = this.scoreLeft;
+    this.tf_scoreRight.text = this.scoreRight;
   },
 
   startBall: function() {
