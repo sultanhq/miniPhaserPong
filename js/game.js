@@ -28,6 +28,14 @@ var graphicsAssets = {
   paddleName: 'paddle',
 };
 
+var fontAssets = {
+  scoreLeft_x: gameProperties.screenWidth * 0.25,
+  scoreRight_x: gameProperties.screenWidth * 0.75,
+  scoreTop_y: 0,
+
+  scoreFontStyle: {font: '7px monospace', fill: '#FFFFFF', align:'center'},
+};
+
 var mainState = function(game) {
   this.backgroundGraphics;
   this.ballSprite;
@@ -41,6 +49,12 @@ var mainState = function(game) {
   this.paddleRight_down;
 
   this.missedSide;
+
+  this.scoreLeft;
+  this.scoreRight;
+
+  this.tf_scoreLeft;
+  this.tf_scoreRight;
 }
 
 mainState.prototype = {
@@ -213,6 +227,12 @@ mainState.prototype = {
 
     this.paddleRightSprite = game.add.sprite(gameProperties.paddleRight_x, game.world.centerY, graphicsAssets.paddleName);
     this.paddleRightSprite.anchor.set(0.5, 0.5);
+
+    this.tf_scoreLeft = game.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreLeft.anchor.set(0.5,0);
+
+    this.tf_scoreRight = game.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreRight.anchor.set(0.5,0);
   },
 };
 
