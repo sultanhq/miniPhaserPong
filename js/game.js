@@ -3,14 +3,21 @@ var gameProperties = {
   screenHeight: 32,
 
   dashSize: 2,
+
   paddleLeft_x: 1,
   paddleRight_x: 31,
   paddleVelocity: 100,
+  paddleSegmentsMax: 4,
+  paddleSegmentHeight: 1,
+  paddleSegmentAngle: 15,
+
 
   ballVelocity: 35,
   ballStartDelay: 2,
   ballRandomStartingAngleLeft: [-120, 120],
   ballRandomStartingAngleRight: [-60, 60],
+
+  scoreToWin: 11,
 };
 
 var graphicsAssets = {
@@ -33,6 +40,7 @@ var mainState = function(game) {
   this.paddleRight_up;
   this.paddleRight_down;
 
+  this.missedSide;
 }
 
 mainState.prototype = {
@@ -51,6 +59,7 @@ mainState.prototype = {
   update: function() {
     this.moveLeftPaddle();
     this.moveRightPaddle();
+    game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
   },
 
   initPhysics: function() {
@@ -61,6 +70,7 @@ mainState.prototype = {
     this.ballSprite.body.collideWorldBounds = true;
     this.ballSprite.body.immovable = true;
     this.ballSprite.body.bounce.set(1);
+    this.ballSprite.events.onOutOfBounds.add(this.ballOutOfBounds, this);
 
     this.paddleGroup = game.add.group();
     this.paddleGroup.enableBody = true;
@@ -85,12 +95,14 @@ mainState.prototype = {
   startDemo: function() {
     this.resetBall();
     this.enablePaddles(false);
+    this.enableBoundaires(true);
     game.input.onDown.add(this.startGame, this);
   },
 
   startGame: function() {
     game.input.onDown.remove(this.startGame, this);
     this.enablePaddles(true);
+    this.enableBoundaires(false);
     this.resetBall();
   },
 
@@ -109,6 +121,11 @@ mainState.prototype = {
     this.paddleLeft_down.enabled = enabled;
     this.paddleRight_up.enabled = enabled;
     this.paddleRight_down.enabled = enabled;
+  },
+
+  enableBoundaires: function(enabled) {
+    game.physics.arcade.checkCollision.left = enabled;
+    game.physics.arcade.checkCollision.right = enabled;
   },
 
   moveLeftPaddle: function() {
@@ -131,10 +148,50 @@ mainState.prototype = {
     }
   },
 
+  collideWithPaddle: function(ball, paddle) {
+    var returnAngle;
+    var segmentHit = Math.floor((ball.y - paddle.y) / gameProperties.paddleSegmentHeight);
+
+    if (segmentHit >= gameProperties.paddleSegmentsMax) {
+      segmentHit = gameProperties.paddleSegmentsMax - 1;
+    } else if (segmentHit <= -gameProperties.paddleSegmentsMax) {
+      segmentHit = -(gameProperties.paddleSegmentsMax - 1);
+    }
+
+    if (paddle.x < gameProperties.screenWidth * 0.5) {
+      returnAngle = segmentHit * gameProperties.paddleSegmentAngle;
+      game.physics.arcade.velocityFromAngle(returnAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
+    } else {
+      returnAngle = 180 - (segmentHit * gameProperties.paddleSegmentAngle);
+      if (returnAngle > 180) {
+        returnAngle -= 360;
+      }
+
+      game.physics.arcade.velocityFromAngle(returnAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
+    }
+  },
+
+  ballOutOfBounds: function() {
+    if (this.ballSprite.x < 0) {
+      this.missedSide = 'left';
+      console.log('Player 2 scores')
+    } else if (this.ballSprite.x > gameProperties.screenWidth) {
+      this.missedSide = 'right';
+      console.log('Player 1 scores')
+    }
+    this.resetBall();
+  },
+
   startBall: function() {
     this.ballSprite.visible = true
 
     var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
+
+    if (this.missedSide == 'right') {
+      randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight);
+    } else if (this.missedSide == 'left') {
+      randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleLeft);
+    }
 
     game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, this.ballSprite.body.velocity);
   },
