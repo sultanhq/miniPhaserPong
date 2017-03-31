@@ -10,8 +10,7 @@ var paddle_down = false;
 var ready = false;
 
 var socket = io();
-// socket.on('chat message', function(msg) {
-//   console.log('hi' + msg);
+
 
 var mainState = function(remote) {
   this.button_up;
@@ -34,11 +33,11 @@ mainState.prototype = {
   update: function() {
     // if (!ready) return;
     if (paddle_up) {
-      console.log("going up");
-      socket.emit('chat message', 'up');
+      console.log("sending up message");
+      socket.emit('control message', 'up');
     } else if (paddle_down) {
-      console.log("going down");
-      socket.emit('chat message', 'down');
+      console.log("sending down message");
+      socket.emit('control message', 'down');
 
     }
   },

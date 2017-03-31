@@ -1,4 +1,8 @@
+var socket = io();
+
 var gameProperties = {
+
+
   screenWidth: 32,
   screenHeight: 32,
 
@@ -19,6 +23,10 @@ var gameProperties = {
 
   scoreToWin: 11,
 };
+
+socket.on('control message', function(msg) {
+  console.log('Recieved ' + msg + ' command' );
+});
 
 var graphicsAssets = {
   ballURL: 'assets/ball.png',
