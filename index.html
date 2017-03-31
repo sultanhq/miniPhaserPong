@@ -2,13 +2,24 @@
 
 <head>
   <title> mini Pong </title>
+  <script src="/socket.io/socket.io.js"></script>
   <script src='js/phaser.min.js'></script>
   <script src='js/game.js'></script>
 </head>
 
 <body>
   <div id='gameDiv'></div>
-  <script>createGame('gamediv');</script>
+  <script>
+    createGame('gamediv');
+  </script>
+
+  <script>
+    var socket = io();
+    socket.on('chat message', function(msg) {
+      console.log(msg);
+      // $('#messages').append($('<li>').text(msg));
+    });
+  </script>
 </body>
 
 </html>
