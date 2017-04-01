@@ -5,7 +5,7 @@ var express = require('express')
 
 app.use(express.static(__dirname));
 
-server.listen(8000, function(){
+server.listen(8000,'0.0.0.0', function(){
   console.log('listening on *:8000');
 });
 

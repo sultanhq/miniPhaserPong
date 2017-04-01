@@ -1,4 +1,5 @@
 var socket = io();
+var message;
 
 var gameProperties = {
 
@@ -66,26 +67,22 @@ var mainState = function(game) {
   this.tf_scoreRight;
 }
 
-socket.on('control message', function(msg) {
-  console.log('Recieved ' + msg + ' command' );
-  if (msg == 'up'){
-    // this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-  } else if (msg == 'down'){
-    // this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
-  } else {
-    // this.paddleLeftSprite.body.velocity.y = 0;
-  }
 
-});
 
 
 mainState.prototype = {
   preload: function() {
+    game.stage.disableVisibilityChange = true;
+
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
     game.load.image(graphicsAssets.paddleName, graphicsAssets.paddleURL);
   },
 
   create: function() {
+    socket.on('control message', function(msg) {
+      message = msg
+      console.log('Recieved ' + msg + ' command' );
+    });
     this.initGraphics();
     this.initPhysics();
     this.initKeyboard();
@@ -94,15 +91,16 @@ mainState.prototype = {
 
   update: function() {
 
-    this.moveLeftPaddle();
+    // this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
+    message = "";
   },
 
   initPhysics: function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.enable(this.ballSprite);
-
+    bs = this.paddleLeftSprite;
     this.ballSprite.checkWorldBounds = true;
     this.ballSprite.body.collideWorldBounds = true;
     this.ballSprite.body.immovable = true;
@@ -167,9 +165,9 @@ mainState.prototype = {
   },
 
   moveLeftPaddle: function() {
-    if (this.paddleLeft_up.isDown) {
+    if (message == 'up'){
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (this.paddleLeft_down.isDown) {
+    } else if (message == 'down'){
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
@@ -282,4 +280,5 @@ createGame = function(gameDiv) {
   game = new Phaser.Game(gameProperties.screenWidth, gameProperties.screenHeight, Phaser.AUTO, gameDiv);
   game.state.add('main', mainState);
   game.state.start('main');
+
 }
