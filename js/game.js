@@ -1,5 +1,6 @@
 var socket = io();
-var message;
+var Lmessage;
+var Rmessage;
 
 var gameProperties = {
 
@@ -53,11 +54,6 @@ var mainState = function(game) {
   this.paddleRightSprite;
   this.paddleGroup;
 
-  this.paddleLeft_up;
-  this.paddleLeft_down;
-  this.paddleRight_up;
-  this.paddleRight_down;
-
   this.missedSide;
 
   this.scoreLeft;
@@ -79,28 +75,24 @@ mainState.prototype = {
   },
 
   create: function() {
-    socket.on('control message', function(msg) {
-      message = msg
-      console.log('Recieved ' + msg + ' command' );
-    });
+
     this.initGraphics();
     this.initPhysics();
-    this.initKeyboard();
+    this.initControls();
     this.startDemo();
   },
 
   update: function() {
-
-    // this.moveLeftPaddle();
+    this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
-    message = "";
+    Lmessage = "";
+    Rmessage = "";
   },
 
   initPhysics: function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.enable(this.ballSprite);
-    bs = this.paddleLeftSprite;
     this.ballSprite.checkWorldBounds = true;
     this.ballSprite.body.collideWorldBounds = true;
     this.ballSprite.body.immovable = true;
@@ -119,12 +111,15 @@ mainState.prototype = {
     this.paddleGroup.setAll('body.immovable', true);
   },
 
-  initKeyboard: function() {
-    this.paddleLeft_up = game.input.keyboard.addKey(Phaser.Keyboard.A);
-    this.paddleLeft_down = game.input.keyboard.addKey(Phaser.Keyboard.Z);
-
-    this.paddleRight_up = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-    this.paddleRight_down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+  initControls: function() {
+    socket.on('Lcontrol message', function(msg) {
+      Lmessage = msg
+      console.log('Left Paddle Recieved ' + msg + ' command' );
+    });
+    socket.on('Rcontrol message', function(msg) {
+      Rmessage = msg
+      console.log('Right Paddle Recieved ' + msg + ' command' );
+    });
   },
 
   startDemo: function() {
@@ -137,6 +132,7 @@ mainState.prototype = {
   startGame: function() {
     game.input.onDown.remove(this.startGame, this);
     this.enablePaddles(true);
+    this.resetPaddles();
     this.enableBoundaires(false);
     this.resetBall();
     this.resetScores();
@@ -152,11 +148,6 @@ mainState.prototype = {
   enablePaddles: function(enabled) {
     this.paddleGroup.setAll('visible', enabled);
     this.paddleGroup.setAll('body.enable', enabled);
-
-    this.paddleLeft_up.enabled = enabled;
-    this.paddleLeft_down.enabled = enabled;
-    this.paddleRight_up.enabled = enabled;
-    this.paddleRight_down.enabled = enabled;
   },
 
   enableBoundaires: function(enabled) {
@@ -165,9 +156,9 @@ mainState.prototype = {
   },
 
   moveLeftPaddle: function() {
-    if (message == 'up'){
+    if (Lmessage == 'up'){
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (message == 'down'){
+    } else if (Lmessage == 'down'){
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
@@ -175,9 +166,9 @@ mainState.prototype = {
   },
 
   moveRightPaddle: function() {
-    if (this.paddleRight_up.isDown) {
+    if (Rmessage == 'up'){
       this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (this.paddleRight_down.isDown) {
+    } else if (Rmessage == 'down'){
       this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
@@ -229,6 +220,10 @@ mainState.prototype = {
     this.scoreLeft = 0;
     this.scoreRight = 0;
     this.updateScoreTextFields();
+  },
+
+  resetPaddles: function(){
+    this.paddleGroup.setAll('y', game.world.centerY);
   },
 
   updateScoreTextFields: function() {

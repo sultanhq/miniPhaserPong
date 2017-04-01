@@ -5,6 +5,7 @@ var remoteProperties = {
 
 var paddle_up = false;
 var paddle_down = false;
+var paddle_choice;
 
 
 var ready = false;
@@ -13,6 +14,11 @@ var socket = io();
 
 
 var mainState = function(remote) {
+  this.title;
+
+  this.selectLeftPaddle;
+  this.selectRightPaddle;
+
   this.button_up;
   this.button_down;
 
@@ -28,16 +34,16 @@ mainState.prototype = {
 
   create: function() {
     this.createButtons();
+    paddleChoice = 'R'
   },
 
   update: function() {
-    // if (!ready) return;
     if (paddle_up) {
       console.log("sending up message");
-      socket.emit('control message', 'up');
+      socket.emit(paddleChoice + 'control message', 'up');
     } else if (paddle_down) {
       console.log("sending down message");
-      socket.emit('control message', 'down');
+      socket.emit(paddleChoice + 'control message', 'down');
 
     }
   },

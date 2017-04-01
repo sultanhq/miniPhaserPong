@@ -14,7 +14,10 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
-  socket.on('control message', function(msg){
-    io.emit('control message', msg);
+  socket.on('Lcontrol message', function(msg){
+    io.emit('Lcontrol message', msg);
+  });
+  socket.on('Rcontrol message', function(msg){
+    io.emit('Rcontrol message', msg);
   });
 });
