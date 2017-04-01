@@ -24,9 +24,6 @@ var gameProperties = {
   scoreToWin: 11,
 };
 
-socket.on('control message', function(msg) {
-  console.log('Recieved ' + msg + ' command' );
-});
 
 var graphicsAssets = {
   ballURL: 'assets/ball.png',
@@ -69,6 +66,19 @@ var mainState = function(game) {
   this.tf_scoreRight;
 }
 
+socket.on('control message', function(msg) {
+  console.log('Recieved ' + msg + ' command' );
+  if (msg == 'up'){
+    // this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
+  } else if (msg == 'down'){
+    // this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
+  } else {
+    // this.paddleLeftSprite.body.velocity.y = 0;
+  }
+
+});
+
+
 mainState.prototype = {
   preload: function() {
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
@@ -83,6 +93,7 @@ mainState.prototype = {
   },
 
   update: function() {
+
     this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
