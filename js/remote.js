@@ -1,6 +1,6 @@
 var remoteProperties = {
-  screenWidth: 100,
-  screenHeight: 100,
+  screenWidth: 300,
+  screenHeight: 300,
 }
 
 var left = false;
@@ -13,6 +13,15 @@ var paddle_choice;
 var ready = false;
 
 var socket = io();
+
+
+var fontAssets = {
+  FontStyle: {
+    font: '22px monospace',
+    fill: '#FFFFFF',
+    align: 'center'
+  },
+};
 
 
 var mainState = function(remote) {
@@ -31,16 +40,15 @@ var mainState = function(remote) {
 
 mainState.prototype = {
   preload: function() {
-    remote.load.image('up', 'assets/up.png');
-    remote.load.image('down', 'assets/down.png');
-    remote.load.image('left', 'assets/left.png');
-    remote.load.image('right', 'assets/right.png');
+    remote.load.image('upButton', 'assets/up.png');
+    remote.load.image('downButton', 'assets/down.png');
+    remote.load.image('leftButton', 'assets/left.png');
+    remote.load.image('rightButton', 'assets/right.png');
 
   },
 
   create: function() {
-    // paddleChoice = 'R'
-    // this.createTitle();
+    this.createTitle();
     this.createPaddleChoiceButtons();
   },
 
@@ -63,26 +71,34 @@ mainState.prototype = {
   },
 
   createPaddleChoiceButtons: function() {
-    selectLeftPaddle = remote.add.button(remote.world.centerX * 0.25, remote.world.centerY, 'left');
+    selectLeftPaddle = remote.add.button(remote.world.centerX - 50, remote.world.centerY, 'leftButton');
     selectLeftPaddle.onInputDown.add(actionOnLeftClick, this);
 
-    selectRightPaddle = remote.add.button(remote.world.centerX * 0.75, remote.world.centerY, 'right');
+    selectRightPaddle = remote.add.button(remote.world.centerX + 25, remote.world.centerY, 'rightButton');
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
 
-  },
+},
 
   createPaddleButtons: function() {
-    button_up = remote.add.button(remote.world.centerX, remote.world.centerY * 0.25, 'up');
+    button_up = remote.add.button(remote.world.centerX, remote.world.centerY - 50, 'upButton');
     button_up.onInputDown.add(actionOnUpClick, this);
     button_up.onInputUp.add(actionOnUpRelease, this);
 
-    button_down = remote.add.button(remote.world.centerX, remote.world.centerY * 0.75, 'down');
+    button_down = remote.add.button(remote.world.centerX, remote.world.centerY - 25, 'downButton');
     button_down.onInputDown.add(actionOnDownClick, this);
     button_down.onInputUp.add(actionOnDownRelease, this);
 
+    selectLeftPaddle.visible = false;
+    selectRightPaddle.visible = false;
+    this.title.text = paddleChoice;
   },
 
-}
+  createTitle() {
+    this.title = remote.add.text(8,remote.world.bottom, 'Select Paddle side', fontAssets.FontStyle);
+
+  },
+};
+
 function actionOnLeftClick() {
   left = true;
   paddleChoice = 'L'
