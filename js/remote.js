@@ -49,14 +49,23 @@ mainState.prototype = {
   },
 
   update: function() {
-    if (left) {
-      paddleChoice = 'L';
-      this.createPaddleButtons();
-    } else if (right) {
-      paddleChoice = 'R';
-      this.createPaddleButtons();
-    } else return;
+    this.checkForChoice();
+    this.checkForControl();
+  },
 
+  checkForChoice: function() {
+    if (!ready) {
+      if (left) {
+        paddleChoice = 'L';
+        this.createPaddleButtons();
+      } else if (right) {
+        paddleChoice = 'R';
+        this.createPaddleButtons();
+      } else return;
+    }
+  },
+
+  checkForControl: function (){
     if (paddle_up) {
       console.log("sending up message");
       socket.emit(paddleChoice + 'control message', 'up');
@@ -87,10 +96,11 @@ mainState.prototype = {
     button_up.onInputUp.add(actionOnUpRelease, this);
     button_down.onInputDown.add(actionOnDownClick, this);
     button_down.onInputUp.add(actionOnDownRelease, this);
-    
+
     selectLeftPaddle.visible = false;
     selectRightPaddle.visible = false;
     this.title.text = paddleChoice;
+    ready = true;
   },
 
   createTitle() {
