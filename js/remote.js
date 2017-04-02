@@ -67,10 +67,10 @@ mainState.prototype = {
 
   checkForControl: function (){
     if (paddle_up) {
-      console.log("sending up message");
+      // console.log("sending up message");
       socket.emit(paddleChoice + 'control message', 'up');
     } else if (paddle_down) {
-      console.log("sending down message");
+      // console.log("sending down message");
       socket.emit(paddleChoice + 'control message', 'down');
     }
   },
@@ -89,8 +89,8 @@ mainState.prototype = {
       button_up = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 50, 'upButton');
       button_down = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 25, 'downButton');
     } else {
-      button_up = remote.add.button(remote.world.centerX + 50, remote.world.centerY - 50, 'upButton');
-      button_down = remote.add.button(remote.world.centerX + 50, remote.world.centerY - 25, 'downButton');
+      button_up = remote.add.button(remote.world.centerX + 25, remote.world.centerY - 50, 'upButton');
+      button_down = remote.add.button(remote.world.centerX + 25, remote.world.centerY - 25, 'downButton');
     }
     button_up.onInputDown.add(actionOnUpClick, this);
     button_up.onInputUp.add(actionOnUpRelease, this);
@@ -99,7 +99,7 @@ mainState.prototype = {
 
     selectLeftPaddle.visible = false;
     selectRightPaddle.visible = false;
-    this.title.text = paddleChoice;
+    this.title.text = 'Pong!';
     ready = true;
   },
 

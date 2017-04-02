@@ -3,8 +3,6 @@ var Lmessage;
 var Rmessage;
 
 var gameProperties = {
-
-
   screenWidth: 32,
   screenHeight: 32,
 
@@ -16,7 +14,6 @@ var gameProperties = {
   paddleSegmentsMax: 4,
   paddleSegmentHeight: 1,
   paddleSegmentAngle: 15,
-
 
   ballVelocity: 35,
   ballStartDelay: 2,
@@ -49,7 +46,9 @@ var fontAssets = {
 
 var mainState = function(game) {
   this.backgroundGraphics;
+
   this.ballSprite;
+
   this.paddleLeftSprite;
   this.paddleRightSprite;
   this.paddleGroup;
@@ -62,9 +61,6 @@ var mainState = function(game) {
   this.tf_scoreLeft;
   this.tf_scoreRight;
 }
-
-
-
 
 mainState.prototype = {
   preload: function() {
@@ -86,8 +82,6 @@ mainState.prototype = {
     this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
-    Lmessage = "";
-    Rmessage = "";
   },
 
   initPhysics: function() {
@@ -114,11 +108,11 @@ mainState.prototype = {
   initControls: function() {
     socket.on('Lcontrol message', function(msg) {
       Lmessage = msg
-      console.log('Left Paddle Recieved ' + msg + ' command' );
+      // console.log('Left Paddle Recieved ' + msg + ' command');
     });
     socket.on('Rcontrol message', function(msg) {
       Rmessage = msg
-      console.log('Right Paddle Recieved ' + msg + ' command' );
+      // console.log('Right Paddle Recieved ' + msg + ' command');
     });
   },
 
@@ -156,23 +150,25 @@ mainState.prototype = {
   },
 
   moveLeftPaddle: function() {
-    if (Lmessage == 'up'){
+    if (Lmessage == 'up') {
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (Lmessage == 'down'){
+    } else if (Lmessage == 'down') {
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
     }
+    Lmessage = '';
   },
 
   moveRightPaddle: function() {
-    if (Rmessage == 'up'){
+    if (Rmessage == 'up') {
       this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (Rmessage == 'down'){
+    } else if (Rmessage == 'down') {
       this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
     }
+    Rmessage = '';
   },
 
   collideWithPaddle: function(ball, paddle) {
@@ -222,7 +218,7 @@ mainState.prototype = {
     this.updateScoreTextFields();
   },
 
-  resetPaddles: function(){
+  resetPaddles: function() {
     this.paddleGroup.setAll('y', game.world.centerY);
   },
 
@@ -275,5 +271,4 @@ createGame = function(gameDiv) {
   game = new Phaser.Game(gameProperties.screenWidth, gameProperties.screenHeight, Phaser.AUTO, gameDiv);
   game.state.add('main', mainState);
   game.state.start('main');
-
 }
