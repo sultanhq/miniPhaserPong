@@ -1,0 +1,24 @@
+{
+  "name": "pong",
+  "version": "1.0.0",
+  "description": "Mini Phaser Pong",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sultanhq/miniPhaserPong.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sultanhq/miniPhaserPong/issues"
+  },
+  "homepage": "https://github.com/sultanhq/miniPhaserPong#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
+  }
+}

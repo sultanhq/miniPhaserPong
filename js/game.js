@@ -1,3 +1,7 @@
+var socket = io();
+var Lmessage;
+var Rmessage;
+
 var gameProperties = {
   screenWidth: 32,
   screenHeight: 32,
@@ -11,7 +15,6 @@ var gameProperties = {
   paddleSegmentHeight: 1,
   paddleSegmentAngle: 15,
 
-
   ballVelocity: 35,
   ballStartDelay: 2,
   ballRandomStartingAngleLeft: [-120, 120],
@@ -19,6 +22,7 @@ var gameProperties = {
 
   scoreToWin: 11,
 };
+
 
 var graphicsAssets = {
   ballURL: 'assets/ball.png',
@@ -33,20 +37,21 @@ var fontAssets = {
   scoreRight_x: gameProperties.screenWidth * 0.75,
   scoreTop_y: 0,
 
-  scoreFontStyle: {font: '8px monospace', fill: '#FFFFFF', align:'center'},
+  scoreFontStyle: {
+    font: '8px monospace',
+    fill: '#FFFFFF',
+    align: 'center'
+  },
 };
 
 var mainState = function(game) {
   this.backgroundGraphics;
+
   this.ballSprite;
+
   this.paddleLeftSprite;
   this.paddleRightSprite;
   this.paddleGroup;
-
-  this.paddleLeft_up;
-  this.paddleLeft_down;
-  this.paddleRight_up;
-  this.paddleRight_down;
 
   this.missedSide;
 
@@ -59,14 +64,17 @@ var mainState = function(game) {
 
 mainState.prototype = {
   preload: function() {
+    game.stage.disableVisibilityChange = true;
+
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
     game.load.image(graphicsAssets.paddleName, graphicsAssets.paddleURL);
   },
 
   create: function() {
+
     this.initGraphics();
     this.initPhysics();
-    this.initKeyboard();
+    this.initControls();
     this.startDemo();
   },
 
@@ -79,7 +87,6 @@ mainState.prototype = {
   initPhysics: function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.enable(this.ballSprite);
-
     this.ballSprite.checkWorldBounds = true;
     this.ballSprite.body.collideWorldBounds = true;
     this.ballSprite.body.immovable = true;
@@ -98,12 +105,15 @@ mainState.prototype = {
     this.paddleGroup.setAll('body.immovable', true);
   },
 
-  initKeyboard: function() {
-    this.paddleLeft_up = game.input.keyboard.addKey(Phaser.Keyboard.A);
-    this.paddleLeft_down = game.input.keyboard.addKey(Phaser.Keyboard.Z);
-
-    this.paddleRight_up = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-    this.paddleRight_down = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+  initControls: function() {
+    socket.on('Lcontrol message', function(msg) {
+      Lmessage = msg
+      // console.log('Left Paddle Recieved ' + msg + ' command');
+    });
+    socket.on('Rcontrol message', function(msg) {
+      Rmessage = msg
+      // console.log('Right Paddle Recieved ' + msg + ' command');
+    });
   },
 
   startDemo: function() {
@@ -116,6 +126,7 @@ mainState.prototype = {
   startGame: function() {
     game.input.onDown.remove(this.startGame, this);
     this.enablePaddles(true);
+    this.resetPaddles();
     this.enableBoundaires(false);
     this.resetBall();
     this.resetScores();
@@ -131,11 +142,6 @@ mainState.prototype = {
   enablePaddles: function(enabled) {
     this.paddleGroup.setAll('visible', enabled);
     this.paddleGroup.setAll('body.enable', enabled);
-
-    this.paddleLeft_up.enabled = enabled;
-    this.paddleLeft_down.enabled = enabled;
-    this.paddleRight_up.enabled = enabled;
-    this.paddleRight_down.enabled = enabled;
   },
 
   enableBoundaires: function(enabled) {
@@ -144,23 +150,25 @@ mainState.prototype = {
   },
 
   moveLeftPaddle: function() {
-    if (this.paddleLeft_up.isDown) {
+    if (Lmessage == 'up') {
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (this.paddleLeft_down.isDown) {
+    } else if (Lmessage == 'down') {
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
     }
+    Lmessage = '';
   },
 
   moveRightPaddle: function() {
-    if (this.paddleRight_up.isDown) {
+    if (Rmessage == 'up') {
       this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (this.paddleRight_down.isDown) {
+    } else if (Rmessage == 'down') {
       this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
     }
+    Rmessage = '';
   },
 
   collideWithPaddle: function(ball, paddle) {
@@ -197,16 +205,24 @@ mainState.prototype = {
       console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
-    this.resetBall();
+    if (this.scoreLeft >= gameProperties.scoreToWin || this.scoreRight >= gameProperties.scoreToWin) {
+      this.startDemo();
+    } else {
+      this.resetBall();
+    }
   },
 
-  resetScores: function(){
+  resetScores: function() {
     this.scoreLeft = 0;
     this.scoreRight = 0;
     this.updateScoreTextFields();
   },
 
-  updateScoreTextFields: function(){
+  resetPaddles: function() {
+    this.paddleGroup.setAll('y', game.world.centerY);
+  },
+
+  updateScoreTextFields: function() {
     this.tf_scoreLeft.text = this.scoreLeft;
     this.tf_scoreRight.text = this.scoreRight;
   },
@@ -244,10 +260,10 @@ mainState.prototype = {
     this.paddleRightSprite.anchor.set(0.5, 0.5);
 
     this.tf_scoreLeft = game.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
-    this.tf_scoreLeft.anchor.set(0.5,0);
+    this.tf_scoreLeft.anchor.set(0.5, 0);
 
     this.tf_scoreRight = game.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
-    this.tf_scoreRight.anchor.set(0.5,0);
+    this.tf_scoreRight.anchor.set(0.5, 0);
   },
 };
 
