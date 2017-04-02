@@ -9,11 +9,9 @@ var paddle_up = false;
 var paddle_down = false;
 var paddle_choice;
 
-
 var ready = false;
 
 var socket = io();
-
 
 var fontAssets = {
   FontStyle: {
@@ -29,7 +27,6 @@ var mainState = function(remote) {
 
   this.selectLeftPaddle;
   this.selectRightPaddle;
-  this.choiceGroup;
 
   this.button_up;
   this.button_down;
@@ -44,7 +41,6 @@ mainState.prototype = {
     remote.load.image('downButton', 'assets/down.png');
     remote.load.image('leftButton', 'assets/left.png');
     remote.load.image('rightButton', 'assets/right.png');
-
   },
 
   create: function() {
@@ -54,10 +50,10 @@ mainState.prototype = {
 
   update: function() {
     if (left) {
-      paddleChoice = 'L'
+      paddleChoice = 'L';
       this.createPaddleButtons();
     } else if (right) {
-      paddleChoice = 'R'
+      paddleChoice = 'R';
       this.createPaddleButtons();
     } else return;
 
@@ -77,25 +73,28 @@ mainState.prototype = {
     selectRightPaddle = remote.add.button(remote.world.centerX + 25, remote.world.centerY, 'rightButton');
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
 
-},
+  },
 
   createPaddleButtons: function() {
-    button_up = remote.add.button(remote.world.centerX, remote.world.centerY - 50, 'upButton');
+    if (paddleChoice === 'L') {
+      button_up = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 50, 'upButton');
+      button_down = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 25, 'downButton');
+    } else {
+      button_up = remote.add.button(remote.world.centerX + 50, remote.world.centerY - 50, 'upButton');
+      button_down = remote.add.button(remote.world.centerX + 50, remote.world.centerY - 25, 'downButton');
+    }
     button_up.onInputDown.add(actionOnUpClick, this);
     button_up.onInputUp.add(actionOnUpRelease, this);
-
-    button_down = remote.add.button(remote.world.centerX, remote.world.centerY - 25, 'downButton');
     button_down.onInputDown.add(actionOnDownClick, this);
     button_down.onInputUp.add(actionOnDownRelease, this);
-
+    
     selectLeftPaddle.visible = false;
     selectRightPaddle.visible = false;
     this.title.text = paddleChoice;
   },
 
   createTitle() {
-    this.title = remote.add.text(8,remote.world.bottom, 'Select Paddle side', fontAssets.FontStyle);
-
+    this.title = remote.add.text(8, remote.world.bottom, 'Select Paddle side', fontAssets.FontStyle);
   },
 };
 
