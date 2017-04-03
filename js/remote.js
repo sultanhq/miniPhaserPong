@@ -10,13 +10,27 @@ var paddle_down = false;
 var paddle_choice;
 var playerID;
 
+var scores = ["0","0"];
+
 var ready = false;
+var newScore = false;
 
 var socket = io();
 
 var fontAssets = {
-  FontStyle: {
+
+  scoreLeft_x: remoteProperties.screenWidth * 0.25,
+  scoreRight_x: remoteProperties.screenWidth * 0.75,
+  scoreTop_y: remoteProperties.screenHeight - 75,
+
+  fontStyle: {
     font: '22px monospace',
+    fill: '#FFFFFF',
+    align: 'center'
+  },
+
+  scoreFontStyle: {
+    font: '50px monospace',
     fill: '#FFFFFF',
     align: 'center'
   },
@@ -24,6 +38,7 @@ var fontAssets = {
 
 
 var mainState = function(remote) {
+  this.backgroundGraphics;
   this.title;
 
   this.selectLeftPaddle;
@@ -32,8 +47,10 @@ var mainState = function(remote) {
   this.button_up;
   this.button_down;
 
-  this.score;
-  this.tf_score;
+  this.scoreLeft = '0';
+  this.scoreRight = '0';
+  this.tf_scoreLeft;
+  this.tf_scoreRight;
 }
 
 mainState.prototype = {
@@ -44,8 +61,8 @@ mainState.prototype = {
     remote.load.image('downButton', 'assets/down.png');
     remote.load.image('leftButton', 'assets/left.png');
     remote.load.image('rightButton', 'assets/right.png');
-    socket.on('score', function(data) {console.log(data.score)});
 
+    this.createSocketListeners();
   },
 
   create: function() {
@@ -56,6 +73,17 @@ mainState.prototype = {
   update: function() {
     this.checkForChoice();
     this.checkForControl();
+    if (newScore) {
+      this.updateScores();
+      newScore = false;
+    }
+  },
+
+  createSocketListeners: function() {
+    socket.on('score', function(data) {
+      scores = data.score.split(',')
+      newScore = true;
+    });
   },
 
   checkForChoice: function() {
@@ -70,7 +98,7 @@ mainState.prototype = {
     }
   },
 
-  checkForControl: function (){
+  checkForControl: function() {
     if (paddle_up) {
       // console.log("sending up message");
       socket.emit(paddleChoice + 'control message', 'up');
@@ -78,6 +106,13 @@ mainState.prototype = {
       // console.log("sending down message");
       socket.emit(paddleChoice + 'control message', 'down');
     }
+  },
+
+  updateScores: function() {
+    this.scoreLeft = scores[0]
+    this.scoreRight = scores[1]
+    this.tf_scoreLeft.text = this.scoreLeft;
+    this.tf_scoreRight.text = this.scoreRight;
   },
 
   createPaddleChoiceButtons: function() {
@@ -106,10 +141,26 @@ mainState.prototype = {
     selectRightPaddle.visible = false;
     this.title.text = 'Pong!';
     ready = true;
+    this.createScoreBoard();
   },
 
-  createTitle() {
-    this.title = remote.add.text(8, remote.world.bottom, 'Select Paddle side', fontAssets.FontStyle);
+  createScoreBoard: function() {
+    this.backgroundGraphics = remote.add.graphics(0, 0);
+    this.backgroundGraphics.lineStyle(1, 0xFFFFFF, 1);
+    this.backgroundGraphics.moveTo(0, remote.world.height - 100)
+    this.backgroundGraphics.lineTo(remote.world.width, remote.world.height - 100)
+    this.backgroundGraphics.moveTo(remote.world.centerX, remote.world.height - 100)
+    this.backgroundGraphics.lineTo(remote.world.centerX, remote.world.height)
+
+    this.tf_scoreLeft = remote.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreLeft.anchor.set(0.5, 0);
+
+    this.tf_scoreRight = remote.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreRight.anchor.set(0.5, 0);
+  },
+
+  createTitle: function() {
+    this.title = remote.add.text(8, remote.world.bottom, 'Select Paddle side', fontAssets.fontStyle);
   },
 };
 
@@ -144,4 +195,5 @@ createRemote = function(remoteDiv) {
   remote = new Phaser.Game(remoteProperties.screenWidth, remoteProperties.screenHeight, Phaser.AUTO, remoteDiv);
   remote.state.add('main', mainState);
   remote.state.start('main');
+
 }
