@@ -1,6 +1,7 @@
 var socket = io();
 var Lmessage;
 var Rmessage;
+// var score;
 
 var gameProperties = {
   screenWidth: 32,
@@ -22,7 +23,6 @@ var gameProperties = {
 
   scoreToWin: 11,
 };
-
 
 var graphicsAssets = {
   ballURL: 'assets/ball.png',
@@ -82,6 +82,7 @@ mainState.prototype = {
     this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
+
   },
 
   initPhysics: function() {
@@ -205,11 +206,18 @@ mainState.prototype = {
       console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
+    this.broadcastScore();
     if (this.scoreLeft >= gameProperties.scoreToWin || this.scoreRight >= gameProperties.scoreToWin) {
       this.startDemo();
     } else {
       this.resetBall();
     }
+  },
+
+  broadcastScore: function() {
+    socket.emit('score', {
+      score: (this.scoreLeft + ' '+ this.scoreRight)
+    });
   },
 
   resetScores: function() {

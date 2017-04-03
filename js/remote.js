@@ -8,6 +8,7 @@ var right = false;
 var paddle_up = false;
 var paddle_down = false;
 var paddle_choice;
+var playerID;
 
 var ready = false;
 
@@ -37,10 +38,14 @@ var mainState = function(remote) {
 
 mainState.prototype = {
   preload: function() {
+    remote.stage.disableVisibilityChange = true;
+
     remote.load.image('upButton', 'assets/up.png');
     remote.load.image('downButton', 'assets/down.png');
     remote.load.image('leftButton', 'assets/left.png');
     remote.load.image('rightButton', 'assets/right.png');
+    socket.on('score', function(data) {console.log(data.score)});
+
   },
 
   create: function() {
