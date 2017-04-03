@@ -44,6 +44,12 @@ var fontAssets = {
     fill: '#FFFFFF',
     align: 'center'
   },
+
+  winFontStyle: {
+    font: '10px monospace',
+    fill: '',
+    align: 'center'
+  },
 };
 
 var mainState = function(game) {
@@ -62,6 +68,13 @@ var mainState = function(game) {
 
   this.tf_scoreLeft;
   this.tf_scoreRight;
+  this.tf_winner = {
+    text: '',
+  };
+  this.tf_winner_wins = {
+    text: '',
+  };
+
 }
 
 mainState.prototype = {
@@ -199,24 +212,41 @@ mainState.prototype = {
     if (this.ballSprite.x < 0) {
       this.missedSide = 'left';
       this.scoreRight++;
-      console.log('Player 2 scores')
+      // console.log('Player 2 scores')
     } else if (this.ballSprite.x > gameProperties.screenWidth) {
       this.missedSide = 'right';
       this.scoreLeft++;
-      console.log('Player 1 scores')
+      // console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
     this.broadcastScore();
-    if (this.scoreLeft >= gameProperties.scoreToWin || this.scoreRight >= gameProperties.scoreToWin) {
+    this.checkForWinner();
+  },
+
+  checkForWinner: function() {
+    if (this.scoreLeft >= gameProperties.scoreToWin) {
+      fontAssets.winFontStyle.fill = '#FF0000';
+      this.displayWinner("Red");
+      this.startDemo();
+    } else if (this.scoreRight >= gameProperties.scoreToWin) {
+      fontAssets.winFontStyle.fill = '#00FF00';
+      this.displayWinner("Green");
       this.startDemo();
     } else {
       this.resetBall();
     }
   },
 
+  displayWinner: function(winner) {
+    this.tf_winner = game.add.text(game.world.centerX, game.world.centerY, winner, fontAssets.winFontStyle);
+    this.tf_winner.anchor.set(0.5, 0);
+    this.tf_winner_wins = game.add.text(game.world.centerX, game.world.centerY + 9, 'wins', fontAssets.scoreFontStyle);
+    this.tf_winner_wins.anchor.set(0.5, 0);
+  },
+
   broadcastScore: function() {
     socket.emit('score', {
-      score: (this.scoreLeft + ','+ this.scoreRight)
+      score: (this.scoreLeft + ',' + this.scoreRight)
     });
   },
 
@@ -225,6 +255,12 @@ mainState.prototype = {
     this.scoreRight = 0;
     this.updateScoreTextFields();
     this.broadcastScore();
+    this.clearWinner();
+  },
+
+  clearWinner: function() {
+    this.tf_winner.text = '';
+    this.tf_winner_wins.text = '';
   },
 
   resetPaddles: function() {

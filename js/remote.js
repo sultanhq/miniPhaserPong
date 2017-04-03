@@ -10,7 +10,7 @@ var paddle_down = false;
 var paddle_choice;
 var playerID;
 
-var scores = ["0","0"];
+var scores = ["0", "0"];
 
 var ready = false;
 var newScore = false;
@@ -103,10 +103,8 @@ mainState.prototype = {
 
   checkForControl: function() {
     if (paddle_up) {
-      // console.log("sending up message");
       socket.emit(paddleChoice + 'control message', 'up');
     } else if (paddle_down) {
-      // console.log("sending down message");
       socket.emit(paddleChoice + 'control message', 'down');
     }
   },
@@ -120,13 +118,12 @@ mainState.prototype = {
 
   createPaddleChoiceButtons: function() {
     selectLeftPaddle = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'leftButton');
-    selectLeftPaddle.anchor.set(0.5,0.5);
+    selectLeftPaddle.anchor.set(0.5, 0.5);
     selectLeftPaddle.onInputDown.add(actionOnLeftClick, this);
 
     selectRightPaddle = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'rightButton');
-    selectRightPaddle.anchor.set(0.5,0.5);
+    selectRightPaddle.anchor.set(0.5, 0.5);
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
-
   },
 
   createPaddleButtons: function() {
@@ -137,8 +134,8 @@ mainState.prototype = {
       button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
       button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
-    button_up.anchor.set(0.5,0.5);
-    button_down.anchor.set(0.5,0.5);
+    button_up.anchor.set(0.5, 0.5);
+    button_down.anchor.set(0.5, 0.5);
     button_up.onInputDown.add(actionOnUpClick, this);
     button_up.onInputUp.add(actionOnUpRelease, this);
     button_down.onInputDown.add(actionOnDownClick, this);
@@ -167,7 +164,8 @@ mainState.prototype = {
   },
 
   createTitle: function() {
-    this.title = remote.add.text(8, remote.world.bottom, 'Select Paddle side', fontAssets.fontStyle);
+    this.title = remote.add.text(remote.world.centerX, remote.world.bottom, 'Select Paddle side', fontAssets.fontStyle);
+    this.title.anchor.set(0.5, 0);
   },
 };
 
@@ -197,10 +195,8 @@ function actionOnDownRelease() {
   paddle_down = false
 };
 
-
 createRemote = function(remoteDiv) {
   remote = new Phaser.Game(remoteProperties.screenWidth, remoteProperties.screenHeight, Phaser.AUTO, remoteDiv);
   remote.state.add('main', mainState);
   remote.state.start('main');
-
 }
