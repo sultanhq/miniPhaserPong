@@ -56,6 +56,7 @@ var mainState = function(remote) {
 mainState.prototype = {
   preload: function() {
     remote.stage.disableVisibilityChange = true;
+    remote.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
 
     remote.load.image('upButton', 'assets/up.png');
     remote.load.image('downButton', 'assets/down.png');
