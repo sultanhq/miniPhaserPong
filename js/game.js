@@ -1,6 +1,7 @@
 var socket = io();
 var Lmessage;
 var Rmessage;
+// var score;
 
 var gameProperties = {
   screenWidth: 32,
@@ -22,7 +23,6 @@ var gameProperties = {
 
   scoreToWin: 11,
 };
-
 
 var graphicsAssets = {
   ballURL: 'assets/ball.png',
@@ -71,10 +71,9 @@ mainState.prototype = {
   },
 
   create: function() {
-
     this.initGraphics();
     this.initPhysics();
-    this.initControls();
+    this.createSocketListeners();
     this.startDemo();
   },
 
@@ -105,7 +104,7 @@ mainState.prototype = {
     this.paddleGroup.setAll('body.immovable', true);
   },
 
-  initControls: function() {
+  createSocketListeners: function() {
     socket.on('Lcontrol message', function(msg) {
       Lmessage = msg
       // console.log('Left Paddle Recieved ' + msg + ' command');
@@ -136,7 +135,6 @@ mainState.prototype = {
     this.ballSprite.reset(game.world.centerX, game.rnd.between(0, gameProperties.screenHeight));
     this.ballSprite.visible = false;
     game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
-
   },
 
   enablePaddles: function(enabled) {
@@ -205,6 +203,7 @@ mainState.prototype = {
       console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
+    this.broadcastScore();
     if (this.scoreLeft >= gameProperties.scoreToWin || this.scoreRight >= gameProperties.scoreToWin) {
       this.startDemo();
     } else {
@@ -212,10 +211,17 @@ mainState.prototype = {
     }
   },
 
+  broadcastScore: function() {
+    socket.emit('score', {
+      score: (this.scoreLeft + ','+ this.scoreRight)
+    });
+  },
+
   resetScores: function() {
     this.scoreLeft = 0;
     this.scoreRight = 0;
     this.updateScoreTextFields();
+    this.broadcastScore();
   },
 
   resetPaddles: function() {
@@ -268,7 +274,7 @@ mainState.prototype = {
 };
 
 createGame = function(gameDiv) {
-  game = new Phaser.Game(gameProperties.screenWidth, gameProperties.screenHeight, Phaser.AUTO, gameDiv);
+  game = new Phaser.Game(gameProperties.screenWidth, gameProperties.screenHeight, Phaser.AUTO, gameDiv, null, false, false);
   game.state.add('main', mainState);
   game.state.start('main');
 }
