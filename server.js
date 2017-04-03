@@ -27,4 +27,8 @@ io.on('connection', function(socket) {
     io.emit('score', msg);
   });
 
+  socket.on('winner', function(msg) {
+    io.emit('winner', msg);
+  });
+
 });
