@@ -87,6 +87,9 @@ mainState.prototype = {
       scores = data.score.split(',')
       newScore = true;
     });
+    socket.on('winner', function(data) {
+      console.log(data)
+    });
   },
 
   checkForChoice: function() {

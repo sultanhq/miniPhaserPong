@@ -242,12 +242,17 @@ mainState.prototype = {
     this.tf_winner.anchor.set(0.5, 0);
     this.tf_winner_wins = game.add.text(game.world.centerX, game.world.centerY + 9, 'wins', fontAssets.scoreFontStyle);
     this.tf_winner_wins.anchor.set(0.5, 0);
+    this.broadcastGameOver(winner);
   },
 
   broadcastScore: function() {
     socket.emit('score', {
       score: (this.scoreLeft + ',' + this.scoreRight)
     });
+  },
+
+  broadcastGameOver: function(winner) {
+    socket.emit('winner', winner)
   },
 
   resetScores: function() {
