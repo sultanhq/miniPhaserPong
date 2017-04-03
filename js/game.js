@@ -1,7 +1,6 @@
 var socket = io();
 var Lmessage;
 var Rmessage;
-// var score;
 
 var gameProperties = {
   screenWidth: 32,
@@ -28,8 +27,11 @@ var graphicsAssets = {
   ballURL: 'assets/ball.png',
   ballName: 'ball',
 
-  paddleURL: 'assets/paddle.png',
-  paddleName: 'paddle',
+  lPaddleURL: 'assets/lPaddle.png',
+  lPaddleName: 'lPaddle',
+
+  rPaddleURL: 'assets/rPaddle.png',
+  rPaddleName: 'rPaddle',
 };
 
 var fontAssets = {
@@ -67,7 +69,8 @@ mainState.prototype = {
     game.stage.disableVisibilityChange = true;
 
     game.load.image(graphicsAssets.ballName, graphicsAssets.ballURL);
-    game.load.image(graphicsAssets.paddleName, graphicsAssets.paddleURL);
+    game.load.image(graphicsAssets.lPaddleName, graphicsAssets.lPaddleURL);
+    game.load.image(graphicsAssets.rPaddleName, graphicsAssets.rPaddleURL);
   },
 
   create: function() {
@@ -259,10 +262,10 @@ mainState.prototype = {
     this.ballSprite = game.add.sprite(game.world.centerX, game.world.centerY, graphicsAssets.ballName);
     this.ballSprite.anchor.set(0.5, 0.5);
 
-    this.paddleLeftSprite = game.add.sprite(gameProperties.paddleLeft_x, game.world.centerY, graphicsAssets.paddleName);
+    this.paddleLeftSprite = game.add.sprite(gameProperties.paddleLeft_x, game.world.centerY, graphicsAssets.lPaddleName);
     this.paddleLeftSprite.anchor.set(0.5, 0.5);
 
-    this.paddleRightSprite = game.add.sprite(gameProperties.paddleRight_x, game.world.centerY, graphicsAssets.paddleName);
+    this.paddleRightSprite = game.add.sprite(gameProperties.paddleRight_x, game.world.centerY, graphicsAssets.rPaddleName);
     this.paddleRightSprite.anchor.set(0.5, 0.5);
 
     this.tf_scoreLeft = game.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
