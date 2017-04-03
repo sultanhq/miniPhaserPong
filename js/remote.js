@@ -58,10 +58,12 @@ mainState.prototype = {
     remote.stage.disableVisibilityChange = true;
     remote.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
 
-    remote.load.image('upButton', 'assets/up.png');
-    remote.load.image('downButton', 'assets/down.png');
     remote.load.image('leftButton', 'assets/left.png');
     remote.load.image('rightButton', 'assets/right.png');
+    remote.load.image('LUpButton', 'assets/lUp.png');
+    remote.load.image('LDownButton', 'assets/lDown.png');
+    remote.load.image('RUpButton', 'assets/rUp.png');
+    remote.load.image('RDownButton', 'assets/rDown.png');
 
     this.createSocketListeners();
   },
@@ -117,22 +119,26 @@ mainState.prototype = {
   },
 
   createPaddleChoiceButtons: function() {
-    selectLeftPaddle = remote.add.button(remote.world.centerX - 50, remote.world.centerY, 'leftButton');
+    selectLeftPaddle = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'leftButton');
+    selectLeftPaddle.anchor.set(0.5,0.5);
     selectLeftPaddle.onInputDown.add(actionOnLeftClick, this);
 
-    selectRightPaddle = remote.add.button(remote.world.centerX + 25, remote.world.centerY, 'rightButton');
+    selectRightPaddle = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'rightButton');
+    selectRightPaddle.anchor.set(0.5,0.5);
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
 
   },
 
   createPaddleButtons: function() {
     if (paddleChoice === 'L') {
-      button_up = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 50, 'upButton');
-      button_down = remote.add.button(remote.world.centerX - 50, remote.world.centerY - 25, 'downButton');
+      button_up = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY * 0.5, 'LUpButton');
+      button_down = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'LDownButton');
     } else {
-      button_up = remote.add.button(remote.world.centerX + 25, remote.world.centerY - 50, 'upButton');
-      button_down = remote.add.button(remote.world.centerX + 25, remote.world.centerY - 25, 'downButton');
+      button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
+      button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
+    button_up.anchor.set(0.5,0.5);
+    button_down.anchor.set(0.5,0.5);
     button_up.onInputDown.add(actionOnUpClick, this);
     button_up.onInputUp.add(actionOnUpRelease, this);
     button_down.onInputDown.add(actionOnDownClick, this);
