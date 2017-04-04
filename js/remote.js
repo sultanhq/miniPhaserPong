@@ -11,6 +11,7 @@ var paddle_choice;
 var playerID;
 
 var scores = ["0", "0"];
+var gameOver = false;
 
 var ready = false;
 var newScore = false;
@@ -85,7 +86,7 @@ mainState.prototype = {
     }
   },
 
-  gameOverGraphics: function(data){
+  gameOverGraphics: function(data) {
     this.title.text = gameOver + ' Wins!';
   },
 
@@ -96,6 +97,9 @@ mainState.prototype = {
     });
     socket.on('winner', function(data) {
       console.log(data)
+    });
+    socket.on('winner', function(data) {
+      gameOver = data
     });
   },
 
