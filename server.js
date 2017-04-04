@@ -17,6 +17,14 @@ io.on('connection', function(socket) {
     io.emit('disconnect', msg);
   });
 
+  socket.on('check', function(){
+    io.emit('check')
+  });
+
+  socket.on('available', function(msg) {
+    io.emit('available', msg);
+  });
+
   socket.on('Lcontrol message', function(msg) {
     io.emit('Lcontrol message', msg);
   });

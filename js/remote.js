@@ -72,11 +72,12 @@ mainState.prototype = {
     remote.load.image('RUpButton', 'assets/rUp.png');
     remote.load.image('RDownButton', 'assets/rDown.png');
 
-    this.createSocketListeners();
   },
 
   create: function() {
     this.createTitle();
+    this.checkForSpace();
+    this.createSocketListeners();
     this.createPaddleChoiceButtons();
   },
 
@@ -93,7 +94,14 @@ mainState.prototype = {
     }
   },
 
+  checkForSpace: function (){
+    socket.emit('check','data');
+  },
+
   createSocketListeners: function() {
+    socket.on('available', function(data) {
+      console.log(data.available)
+    });
     socket.on('score', function(data) {
       scores = data.score.split(',')
       newScore = true;

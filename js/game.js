@@ -124,20 +124,23 @@ mainState.prototype = {
 
   createSocketListeners: function() {
     socket.on('Lcontrol message', function(msg) {
-      console.log(socket.id);
       Lmessage = msg
       gameProperties.paddleLeftAi = false;
       // console.log('Left Paddle Recieved ' + msg + ' command');
     });
     socket.on('Rcontrol message', function(msg) {
-      console.log(socket.id);
       Rmessage = msg
       gameProperties.paddleRightAi = false;
       // console.log('Right Paddle Recieved ' + msg + ' command');
     });
-
+    socket.on('check', function() {
+      console.log(socket.id + 'check request');
+      socket.emit('available', {
+        available: ['1','2']
+      });
+    });
     socket.on('disconnect', function() {
-      console.log(socket.id + 'disConnected');
+      console.log(socket.id + ' disConnected');
     });
 
   },
