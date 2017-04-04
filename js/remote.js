@@ -15,6 +15,7 @@ var gameOver = false;
 
 var ready = false;
 var newScore = false;
+var gameOver = false;
 
 var socket = io();
 
@@ -30,9 +31,15 @@ var fontAssets = {
     align: 'center'
   },
 
-  scoreFontStyle: {
+  redFontStyle: {
     font: '50px monospace',
-    fill: '#FFFFFF',
+    fill: '#FF0000',
+    align: 'center'
+  },
+
+  greenFontStyle: {
+    font: '50px monospace',
+    fill: '#00FF00',
     align: 'center'
   },
 };
@@ -96,11 +103,15 @@ mainState.prototype = {
       newScore = true;
     });
     socket.on('winner', function(data) {
-      console.log(data)
+      gameOver = data
     });
     socket.on('winner', function(data) {
       gameOver = data
     });
+  },
+
+  gameOver: function(){
+
   },
 
   checkForChoice: function() {
@@ -157,7 +168,7 @@ mainState.prototype = {
 
     selectLeftPaddle.visible = false;
     selectRightPaddle.visible = false;
-    this.title.text = 'Pong!';
+    this.title.text = 'Lets Play Pong!';
     ready = true;
     this.createScoreBoard();
   },
@@ -170,15 +181,15 @@ mainState.prototype = {
     this.backgroundGraphics.moveTo(remote.world.centerX, remote.world.height - 100)
     this.backgroundGraphics.lineTo(remote.world.centerX, remote.world.height)
 
-    this.tf_scoreLeft = remote.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreLeft = remote.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.redFontStyle);
     this.tf_scoreLeft.anchor.set(0.5, 0);
 
-    this.tf_scoreRight = remote.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.scoreFontStyle);
+    this.tf_scoreRight = remote.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.greenFontStyle);
     this.tf_scoreRight.anchor.set(0.5, 0);
   },
 
   createTitle: function() {
-    this.title = remote.add.text(remote.world.centerX, remote.world.bottom, 'Select Paddle side', fontAssets.fontStyle);
+    this.title = remote.add.text(remote.world.centerX, remote.world.bottom, 'Select Paddle Side', fontAssets.fontStyle);
     this.title.anchor.set(0.5, 0);
   },
 };
