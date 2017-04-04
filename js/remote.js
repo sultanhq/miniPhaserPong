@@ -80,6 +80,13 @@ mainState.prototype = {
       this.updateScores();
       newScore = false;
     }
+    if (gameOver) {
+      this.gameOverGraphics();
+    }
+  },
+
+  gameOverGraphics: function(data){
+    this.title.text = gameOver + ' Wins!';
   },
 
   createSocketListeners: function() {
