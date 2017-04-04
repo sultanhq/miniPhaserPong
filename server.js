@@ -12,8 +12,9 @@ server.listen(8000, '0.0.0.0', function() {
 io.on('connection', function(socket) {
   console.log('a user connected ' + socket.id);
 
-  socket.on('disconnect', function() {
+  socket.on('disconnect', function(msg) {
     console.log('user disconnected');
+    io.emit('disconnect', msg);
   });
 
   socket.on('Lcontrol message', function(msg) {
