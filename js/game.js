@@ -6,6 +6,7 @@ var gameProperties = {
   screenWidth: 32,
   screenHeight: 32,
 
+  players: [],
   dashSize: 2,
 
   paddleLeft_x: 1,
@@ -135,12 +136,20 @@ mainState.prototype = {
     });
     socket.on('check', function() {
       console.log(socket.id + 'check request');
-      socket.emit('available', {
-        available: ['1','2']
-      });
+      gameProperties.players.push(socket.id);
+      socket.emit('available', gameProperties.players);
+      console.log(gameProperties.players)
+
     });
+
     socket.on('disconnect', function() {
       console.log(socket.id + ' disConnected');
+      var index = gameProperties.players.indexOf(socket.id);
+
+      if (index > -1) {
+        gameProperties.players.splice(index, 1);
+      }
+      console.log(gameProperties.players)
     });
 
   },

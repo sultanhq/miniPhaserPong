@@ -100,7 +100,7 @@ mainState.prototype = {
 
   createSocketListeners: function() {
     socket.on('available', function(data) {
-      console.log(data.available)
+      console.log(data)
     });
     socket.on('score', function(data) {
       scores = data.score.split(',')
