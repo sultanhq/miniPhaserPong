@@ -11,6 +11,7 @@ var paddle_choice;
 var playerID;
 
 var scores = ["0", "0"];
+var gameOver = false;
 
 var ready = false;
 var newScore = false;
@@ -88,14 +89,18 @@ mainState.prototype = {
       this.updateScores();
       newScore = false;
     }
-
     if (gameOver) {
-      gameOver();
+      this.gameOverGraphics();
     }
   },
 
+
   checkForSpace: function (){
     socket.emit('check', socket.id);
+  },
+  
+  gameOverGraphics: function(data) {
+    this.title.text = gameOver + ' Wins!';
   },
 
   createSocketListeners: function() {
@@ -105,6 +110,9 @@ mainState.prototype = {
     socket.on('score', function(data) {
       scores = data.score.split(',')
       newScore = true;
+    });
+    socket.on('winner', function(data) {
+      gameOver = data
     });
     socket.on('winner', function(data) {
       gameOver = data
