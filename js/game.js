@@ -6,6 +6,7 @@ var gameProperties = {
   screenWidth: 32,
   screenHeight: 32,
 
+  players: [],
   dashSize: 2,
 
   paddleLeft_x: 1,
@@ -125,12 +126,33 @@ mainState.prototype = {
   createSocketListeners: function() {
     socket.on('Lcontrol message', function(msg) {
       Lmessage = msg
+      gameProperties.paddleLeftAi = false;
       // console.log('Left Paddle Recieved ' + msg + ' command');
     });
     socket.on('Rcontrol message', function(msg) {
       Rmessage = msg
+      gameProperties.paddleRightAi = false;
       // console.log('Right Paddle Recieved ' + msg + ' command');
     });
+
+    socket.on('check', function(id) {
+      console.log(id + ' Connecting');
+      gameProperties.players.push(id);
+      socket.emit('available', gameProperties.players);
+      console.log(gameProperties.players)
+
+    });
+
+    socket.on('disconnect', function(id) {
+      console.log(id + ' disconnected');
+      var index = gameProperties.players.indexOf(id);
+
+      if (index > -1) {
+        gameProperties.players.splice(index, 1);
+      }
+      console.log(gameProperties.players)
+    });
+
   },
 
   startDemo: function() {

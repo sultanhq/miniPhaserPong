@@ -14,6 +14,15 @@ io.on('connection', function(socket) {
 
   socket.on('disconnect', function() {
     console.log('user disconnected');
+    io.emit('disconnect', socket.id);
+  });
+
+  socket.on('check', function(data){
+    io.emit('check', data)
+  });
+
+  socket.on('available', function(msg) {
+    io.emit('available', msg);
   });
 
   socket.on('Lcontrol message', function(msg) {
