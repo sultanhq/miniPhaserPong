@@ -148,9 +148,9 @@ mainState.prototype = {
   },
 
   resetBall: function() {
+    game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
     this.ballSprite.reset(game.world.centerX, game.rnd.between(0, gameProperties.screenHeight));
     this.ballSprite.visible = false;
-    game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
   },
 
   enablePaddles: function(enabled) {
@@ -175,14 +175,29 @@ mainState.prototype = {
   },
 
   moveRightPaddle: function() {
-    if (Rmessage == 'up') {
-      this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (Rmessage == 'down') {
-      this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
+    if (this.ballSprite.y <= this.paddleRightSprite.body.y) {
+      this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.1;
+    } else if (this.ballSprite.y >= this.paddleRightSprite.body.y) {
+      this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity * 0.1;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
     }
-    Rmessage = '';
+
+    // console.log (this.paddleLeftSprite.body.y);
+    // this.paddleRightSprite.body.velocity.y = (this.ballSprite.y);
+    // this.paddleRightSprite.body.velocity.x = 0;
+
+    // this.paddelRightSprite.body.maxVelocity.y = 10;
+
+    //
+    // if (Rmessage == 'up') {
+    //   this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
+    // } else if (Rmessage == 'down') {
+    //   this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
+    // } else {
+    //   this.paddleRightSprite.body.velocity.y = 0;
+    // }
+    // Rmessage = '';
   },
 
   collideWithPaddle: function(ball, paddle) {
@@ -219,6 +234,7 @@ mainState.prototype = {
       // console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
+    this.resetPaddles();
     this.broadcastScore();
     this.checkForWinner();
   },
