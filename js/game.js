@@ -10,8 +10,8 @@ var gameProperties = {
 
   paddleLeft_x: 1,
   paddleRight_x: 31,
-  paddleLeftAi: false,
-  paddleRightAi: false,
+  paddleLeftAi: true,
+  paddleRightAi: true,
   paddleVelocity: 100,
   paddleSegmentsMax: 4,
   paddleSegmentHeight: 1,
@@ -167,54 +167,68 @@ mainState.prototype = {
 
   moveLeftPaddle: function() {
     if (gameProperties.paddleLeftAi) {
-      if (this.ballSprite.visible) {
+      this.aiMoveLeftPaddle();
+    } else {
+      this.playerMoveLeftPaddle();
+    }
+  },
 
-        if (this.ballSprite.y <= this.paddleLeftSprite.body.y) {
-          this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
-        } else if (this.ballSprite.y >= this.paddleLeftSprite.body.y) {
-          this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
-        } else {
-          this.paddleLeftSprite.body.velocity.y = 0;
-        }
+  playerMoveLeftPaddle: function() {
+    if (Lmessage == 'up') {
+      this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
+    } else if (Lmessage == 'down') {
+      this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
+    } else {
+      this.paddleLeftSprite.body.velocity.y = 0;
+    }
+    Lmessage = '';
+  },
+
+  aiMoveLeftPaddle: function() {
+    if (this.ballSprite.visible) {
+      if (this.ballSprite.y <= this.paddleLeftSprite.body.y) {
+        this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
+      } else if (this.ballSprite.y >= this.paddleLeftSprite.body.y) {
+        this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
       } else {
         this.paddleLeftSprite.body.velocity.y = 0;
       }
     } else {
-      if (Lmessage == 'up') {
-        this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-      } else if (Lmessage == 'down') {
-        this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
-      } else {
-        this.paddleLeftSprite.body.velocity.y = 0;
-      }
-      Lmessage = '';
+      this.paddleLeftSprite.body.velocity.y = 0;
     }
   },
 
   moveRightPaddle: function() {
     if (gameProperties.paddleRightAi) {
-      if (this.ballSprite.visible) {
+      this.aiMoveRightPaddle();
+    } else {
+      this.playerMoveRightPaddle();
+    };
+  },
 
-        if (this.ballSprite.y <= this.paddleRightSprite.body.y) {
-          this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
-        } else if (this.ballSprite.y >= this.paddleRightSprite.body.y) {
-          this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
-        } else {
-          this.paddleRightSprite.body.velocity.y = 0;
-        }
+  playerMoveRightPaddle: function() {
+    if (Rmessage == 'up') {
+      this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
+    } else if (Rmessage == 'down') {
+      this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
+    } else {
+      this.paddleRightSprite.body.velocity.y = 0;
+    }
+    Rmessage = '';
+  },
+
+  aiMoveRightPaddle: function() {
+    if (this.ballSprite.visible) {
+      if (this.ballSprite.y <= this.paddleRightSprite.body.y) {
+        this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
+      } else if (this.ballSprite.y >= this.paddleRightSprite.body.y) {
+        this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
       } else {
         this.paddleRightSprite.body.velocity.y = 0;
       }
     } else {
-      if (Rmessage == 'up') {
-        this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-      } else if (Rmessage == 'down') {
-        this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
-      } else {
-        this.paddleRightSprite.body.velocity.y = 0;
-      }
-      Rmessage = '';
-    };
+      this.paddleRightSprite.body.velocity.y = 0;
+    }
   },
 
   collideWithPaddle: function(ball, paddle) {
