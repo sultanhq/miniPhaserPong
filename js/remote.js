@@ -95,7 +95,7 @@ mainState.prototype = {
   },
 
   checkForSpace: function (){
-    socket.emit('check','data');
+    socket.emit('check', socket.id);
   },
 
   createSocketListeners: function() {

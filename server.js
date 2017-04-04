@@ -12,13 +12,13 @@ server.listen(8000, '0.0.0.0', function() {
 io.on('connection', function(socket) {
   console.log('a user connected ' + socket.id);
 
-  socket.on('disconnect', function(msg) {
+  socket.on('disconnect', function() {
     console.log('user disconnected');
-    io.emit('disconnect', msg);
+    io.emit('disconnect', socket.id);
   });
 
-  socket.on('check', function(){
-    io.emit('check')
+  socket.on('check', function(data){
+    io.emit('check', data)
   });
 
   socket.on('available', function(msg) {

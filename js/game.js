@@ -134,17 +134,18 @@ mainState.prototype = {
       gameProperties.paddleRightAi = false;
       // console.log('Right Paddle Recieved ' + msg + ' command');
     });
-    socket.on('check', function() {
-      console.log(socket.id + 'check request');
-      gameProperties.players.push(socket.id);
+
+    socket.on('check', function(id) {
+      console.log(id + ' Connecting');
+      gameProperties.players.push(id);
       socket.emit('available', gameProperties.players);
       console.log(gameProperties.players)
 
     });
 
-    socket.on('disconnect', function() {
-      console.log(socket.id + ' disConnected');
-      var index = gameProperties.players.indexOf(socket.id);
+    socket.on('disconnect', function(id) {
+      console.log(id + ' disconnected');
+      var index = gameProperties.players.indexOf(id);
 
       if (index > -1) {
         gameProperties.players.splice(index, 1);
