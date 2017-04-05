@@ -73,7 +73,7 @@ mainState.prototype = {
     remote.load.image('LDownButton', 'assets/lDown.png');
     remote.load.image('RUpButton', 'assets/rUp.png');
     remote.load.image('RDownButton', 'assets/rDown.png');
-
+    remote.load.image('restart', 'assets/restart.png');
   },
 
   create: function() {
@@ -113,7 +113,7 @@ mainState.prototype = {
     this.title.text = gameWinner + ' Wins!';
     this.button_up.visible = false;
     this.button_down.visible = false;
-    startGame = remote.add.button(remote.world.centerX, remote.world.centerY, 'leftButton');
+    startGame = remote.add.button(remote.world.centerX, remote.world.centerY, 'restart');
     startGame.anchor.set(0.5, 0.5);
     startGame.visible = true;
   },
