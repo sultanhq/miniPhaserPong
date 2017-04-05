@@ -12,10 +12,10 @@ var playerID;
 
 var scores = ["0", "0"];
 var gameOver = false;
+var gameWinner;
 
 var ready = false;
 var newScore = false;
-var gameOver = false;
 
 var socket = io();
 
@@ -59,6 +59,7 @@ var mainState = function(remote) {
   this.scoreRight = '0';
   this.tf_scoreLeft;
   this.tf_scoreRight;
+  this.startGame;
 }
 
 mainState.prototype = {
@@ -72,14 +73,15 @@ mainState.prototype = {
     remote.load.image('LDownButton', 'assets/lDown.png');
     remote.load.image('RUpButton', 'assets/rUp.png');
     remote.load.image('RDownButton', 'assets/rDown.png');
-
+    remote.load.image('restart', 'assets/restart.png');
   },
 
   create: function() {
+    console.log(socket.id);
     this.createTitle();
-    this.checkForSpace();
     this.createSocketListeners();
     this.createPaddleChoiceButtons();
+    this.createScoreBoard();
   },
 
   update: function() {
@@ -91,45 +93,74 @@ mainState.prototype = {
     }
     if (gameOver) {
       this.gameOverGraphics();
+      this.gameOverSettings();
+      socket.close()
     }
   },
 
 
-  checkForSpace: function (){
-    socket.emit('check', socket.id);
+  checkForSpace: function(side) {
+    if (!socket.connected) {
+      socket.connect()
+    }
+    socket.emit('check', {
+      id: socket.id,
+      side: side,
+    });
   },
-  
-  gameOverGraphics: function(data) {
-    this.title.text = gameOver + ' Wins!';
+
+  gameOverGraphics: function() {
+    this.title.text = gameWinner + ' Wins!';
+    this.button_up.visible = false;
+    this.button_down.visible = false;
+    startGame = remote.add.button(remote.world.centerX, remote.world.centerY, 'restart');
+    startGame.anchor.set(0.5, 0.5);
+    startGame.visible = true;
+  },
+
+  gameOverSettings: function() {
+    left = false;
+    right = false;
+    startGame.onInputDown.add(this.startNewGame, this);
+    gameOver = false;
+  },
+
+  startNewGame: function() {
+    socket.emit('connect')
+    socket.emit('newGame')
+    newScore = false;
+    ready = false;
+    this.tf_scoreLeft.text = 0;
+    this.tf_scoreRight.text = 0;
+    startGame.onInputDown.remove(this.startNewGame, this);
+    startGame.visible = false;
+    this.createPaddleChoiceButtons();
   },
 
   createSocketListeners: function() {
-    socket.on('available', function(data) {
-      console.log(data)
-    });
+    // socket.on('available', function(data) {
+    //   console.log(data)
+    // });
     socket.on('score', function(data) {
       scores = data.score.split(',')
       newScore = true;
     });
     socket.on('winner', function(data) {
-      gameOver = data
+      console.log(data)
+      gameWinner = data;
+      gameOver = true;
     });
-    socket.on('winner', function(data) {
-      gameOver = data
-    });
-  },
-
-  gameOver: function(){
-
   },
 
   checkForChoice: function() {
     if (!ready) {
       if (left) {
         paddleChoice = 'L';
+        this.checkForSpace(paddleChoice);
         this.createPaddleButtons();
       } else if (right) {
         paddleChoice = 'R';
+        this.checkForSpace(paddleChoice);
         this.createPaddleButtons();
       } else return;
     }
@@ -144,10 +175,12 @@ mainState.prototype = {
   },
 
   updateScores: function() {
-    this.scoreLeft = scores[0]
-    this.scoreRight = scores[1]
-    this.tf_scoreLeft.text = this.scoreLeft;
-    this.tf_scoreRight.text = this.scoreRight;
+    if (ready) {
+      this.scoreLeft = scores[0]
+      this.scoreRight = scores[1]
+      this.tf_scoreLeft.text = this.scoreLeft;
+      this.tf_scoreRight.text = this.scoreRight;
+    };
   },
 
   createPaddleChoiceButtons: function() {
@@ -162,24 +195,23 @@ mainState.prototype = {
 
   createPaddleButtons: function() {
     if (paddleChoice === 'L') {
-      button_up = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY * 0.5, 'LUpButton');
-      button_down = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'LDownButton');
-    } else {
-      button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
-      button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
+      this.button_up = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY * 0.5, 'LUpButton');
+      this.button_down = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'LDownButton');
+    } else if (paddleChoice === 'R') {
+      this.button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
+      this.button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
-    button_up.anchor.set(0.5, 0.5);
-    button_down.anchor.set(0.5, 0.5);
-    button_up.onInputDown.add(actionOnUpClick, this);
-    button_up.onInputUp.add(actionOnUpRelease, this);
-    button_down.onInputDown.add(actionOnDownClick, this);
-    button_down.onInputUp.add(actionOnDownRelease, this);
+    this.button_up.anchor.set(0.5, 0.5);
+    this.button_down.anchor.set(0.5, 0.5);
+    this.button_up.onInputDown.add(actionOnUpClick, this);
+    this.button_up.onInputUp.add(actionOnUpRelease, this);
+    this.button_down.onInputDown.add(actionOnDownClick, this);
+    this.button_down.onInputUp.add(actionOnDownRelease, this);
 
     selectLeftPaddle.visible = false;
     selectRightPaddle.visible = false;
     this.title.text = 'Lets Play Pong!';
     ready = true;
-    this.createScoreBoard();
   },
 
   createScoreBoard: function() {

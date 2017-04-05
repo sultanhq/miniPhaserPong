@@ -5,7 +5,6 @@ var Rmessage;
 var gameProperties = {
   screenWidth: 32,
   screenHeight: 32,
-
   players: [],
   dashSize: 2,
 
@@ -23,7 +22,8 @@ var gameProperties = {
   ballRandomStartingAngleLeft: [-120, 120],
   ballRandomStartingAngleRight: [-60, 60],
 
-  scoreToWin: 11,
+  scoreToWin: 4,
+  newGame: false,
 };
 
 var graphicsAssets = {
@@ -97,6 +97,10 @@ mainState.prototype = {
   },
 
   update: function() {
+    if (gameProperties.newGame) {
+      gameProperties.newGame = false;
+      this.startGame();
+    };
     this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
@@ -126,33 +130,44 @@ mainState.prototype = {
   createSocketListeners: function() {
     socket.on('Lcontrol message', function(msg) {
       Lmessage = msg
-      gameProperties.paddleLeftAi = false;
+      // gameProperties.paddleLeftAi = false;
       // console.log('Left Paddle Recieved ' + msg + ' command');
     });
     socket.on('Rcontrol message', function(msg) {
       Rmessage = msg
-      gameProperties.paddleRightAi = false;
+      // gameProperties.paddleRightAi = false;
       // console.log('Right Paddle Recieved ' + msg + ' command');
     });
 
-    socket.on('check', function(id) {
-      console.log(id + ' Connecting');
-      gameProperties.players.push(id);
-      socket.emit('available', gameProperties.players);
+    socket.on('check', function(data) {
+      console.log(data.id + ' Connecting');
+      if (data.side === 'L') {
+        gameProperties.paddleLeftAi = false;
+      } else if (data.side === 'R') {
+        gameProperties.paddleRightAi = false;
+      }
+      gameProperties.newGame = true;
+      gameProperties.players.push(data);
+      // socket.emit('available', gameProperties.players);
       console.log(gameProperties.players)
-
     });
 
     socket.on('disconnect', function(id) {
       console.log(id + ' disconnected');
-      var index = gameProperties.players.indexOf(id);
 
-      if (index > -1) {
-        gameProperties.players.splice(index, 1);
+      var pos = gameProperties.players.map(function(e) {
+        return e.id;
+      }).indexOf(id);
+
+      if (pos > -1) {
+        gameProperties.players.splice(pos, 1);
       }
       console.log(gameProperties.players)
     });
 
+    socket.on('newGame', function() {
+      gameProperties.newGame = true;
+    });
   },
 
   startDemo: function() {
