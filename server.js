@@ -28,6 +28,7 @@ io.on('connection', function(socket) {
   socket.on('Lcontrol message', function(msg) {
     io.emit('Lcontrol message', msg);
   });
+  
   socket.on('Rcontrol message', function(msg) {
     io.emit('Rcontrol message', msg);
   });
@@ -38,6 +39,10 @@ io.on('connection', function(socket) {
 
   socket.on('winner', function(msg) {
     io.emit('winner', msg);
+  });
+
+  socket.on('newGame', function(msg) {
+    io.emit('newGame', msg);
   });
 
 });
