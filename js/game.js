@@ -146,9 +146,9 @@ mainState.prototype = {
 
   addPlayer: function(data) {
     console.log(data.id + ' Connecting');
-    if (data.side === 'L') {
+    if (data.side ==== 'L') {
       gameProperties.paddleLeftAi = false;
-    } else if (data.side === 'R') {
+    } else if (data.side ==== 'R') {
       gameProperties.paddleRightAi = false;
     }
     gameProperties.players.push(data);
@@ -163,10 +163,19 @@ mainState.prototype = {
       return e.id;
     }).indexOf(id);
 
+    this.returnAi(gameProperties.players[pos]);
+
     if (pos > -1) {
       gameProperties.players.splice(pos, 1);
     }
-    console.log(gameProperties.players)
+  },
+
+  returnAi: function(player){
+    if (player.side === 'L') {
+      gameProperties.paddleLeftAi = true;
+    } else if (player.side === 'R'){
+      gameProperties.paddleRightAi = true;
+    };
   },
 
   startDemo: function() {
@@ -210,9 +219,9 @@ mainState.prototype = {
   },
 
   playerMoveLeftPaddle: function(direction) {
-    if (direction == 'up') {
+    if (direction === 'up') {
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (direction == 'down') {
+    } else if (direction === 'down') {
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
@@ -242,9 +251,9 @@ mainState.prototype = {
   },
 
   playerMoveRightPaddle: function(direction) {
-    if (direction == 'up') {
+    if (direction === 'up') {
       this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (direction == 'down') {
+    } else if (direction === 'down') {
       this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
@@ -363,9 +372,9 @@ mainState.prototype = {
 
     var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
 
-    if (this.missedSide == 'right') {
+    if (this.missedSide === 'right') {
       randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight);
-    } else if (this.missedSide == 'left') {
+    } else if (this.missedSide === 'left') {
       randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleLeft);
     }
 

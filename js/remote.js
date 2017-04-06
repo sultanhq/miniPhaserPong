@@ -185,10 +185,10 @@ mainState.prototype = {
   },
 
   createPaddleButtons: function() {
-    if (paddleChoice === 'L') {
+    if (paddleChoice ==== 'L') {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY * 0.5, 'LUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'LDownButton');
-    } else if (paddleChoice === 'R') {
+    } else if (paddleChoice ==== 'R') {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
