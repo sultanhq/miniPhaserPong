@@ -1,11 +1,11 @@
 var socket = io();
-var Lmessage;
-var Rmessage;
 
 var gameProperties = {
+  players: [],
+  maxPlayers: 2,
+
   screenWidth: 32,
   screenHeight: 32,
-  players: [],
   dashSize: 2,
 
   paddleLeft_x: 1,
@@ -23,7 +23,6 @@ var gameProperties = {
   ballRandomStartingAngleRight: [-60, 60],
 
   scoreToWin: 4,
-  newGame: false,
 };
 
 var graphicsAssets = {
@@ -97,10 +96,6 @@ mainState.prototype = {
   },
 
   update: function() {
-    if (gameProperties.newGame) {
-      gameProperties.newGame = false;
-      this.startGame();
-    };
     this.moveLeftPaddle();
     this.moveRightPaddle();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
@@ -128,46 +123,50 @@ mainState.prototype = {
   },
 
   createSocketListeners: function() {
-    socket.on('Lcontrol message', function(msg) {
-      Lmessage = msg
-      // gameProperties.paddleLeftAi = false;
-      // console.log('Left Paddle Recieved ' + msg + ' command');
-    });
-    socket.on('Rcontrol message', function(msg) {
-      Rmessage = msg
-      // gameProperties.paddleRightAi = false;
-      // console.log('Right Paddle Recieved ' + msg + ' command');
-    });
+    socket.on('Lcontrol message', function(direction) {
+      this.moveLeftPaddle(direction);
+    }.bind(this));
+
+    socket.on('Rcontrol message', function(direction) {
+      this.moveRightPaddle(direction);
+    }.bind(this));
 
     socket.on('check', function(data) {
-      console.log(data.id + ' Connecting');
-      if (data.side === 'L') {
-        gameProperties.paddleLeftAi = false;
-      } else if (data.side === 'R') {
-        gameProperties.paddleRightAi = false;
-      }
-      gameProperties.newGame = true;
-      gameProperties.players.push(data);
-      // socket.emit('available', gameProperties.players);
-      console.log(gameProperties.players)
-    });
+      this.addPlayer(data);
+    }.bind(this));
 
     socket.on('disconnect', function(id) {
-      console.log(id + ' disconnected');
-
-      var pos = gameProperties.players.map(function(e) {
-        return e.id;
-      }).indexOf(id);
-
-      if (pos > -1) {
-        gameProperties.players.splice(pos, 1);
-      }
-      console.log(gameProperties.players)
-    });
+      this.removePlayer(id)
+    }.bind(this));
 
     socket.on('newGame', function() {
-      gameProperties.newGame = true;
-    });
+      this.startGame();
+    }.bind(this));
+  },
+
+  addPlayer: function(data) {
+    console.log(data.id + ' Connecting');
+    if (data.side === 'L') {
+      gameProperties.paddleLeftAi = false;
+    } else if (data.side === 'R') {
+      gameProperties.paddleRightAi = false;
+    }
+    gameProperties.players.push(data);
+    // socket.emit('available', gameProperties.players);
+    console.log(gameProperties.players)
+    this.startGame()
+  },
+
+  removePlayer: function(id) {
+    console.log(id + ' disconnected');
+    var pos = gameProperties.players.map(function(e) {
+      return e.id;
+    }).indexOf(id);
+
+    if (pos > -1) {
+      gameProperties.players.splice(pos, 1);
+    }
+    console.log(gameProperties.players)
   },
 
   startDemo: function() {
@@ -202,23 +201,22 @@ mainState.prototype = {
     game.physics.arcade.checkCollision.right = enabled;
   },
 
-  moveLeftPaddle: function() {
+  moveLeftPaddle: function(direction) {
     if (gameProperties.paddleLeftAi) {
       this.aiMoveLeftPaddle();
     } else {
-      this.playerMoveLeftPaddle();
+      this.playerMoveLeftPaddle(direction);
     }
   },
 
-  playerMoveLeftPaddle: function() {
-    if (Lmessage == 'up') {
+  playerMoveLeftPaddle: function(direction) {
+    if (direction == 'up') {
       this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (Lmessage == 'down') {
+    } else if (direction == 'down') {
       this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleLeftSprite.body.velocity.y = 0;
     }
-    Lmessage = '';
   },
 
   aiMoveLeftPaddle: function() {
@@ -235,23 +233,22 @@ mainState.prototype = {
     }
   },
 
-  moveRightPaddle: function() {
+  moveRightPaddle: function(direction) {
     if (gameProperties.paddleRightAi) {
       this.aiMoveRightPaddle();
     } else {
-      this.playerMoveRightPaddle();
+      this.playerMoveRightPaddle(direction);
     };
   },
 
-  playerMoveRightPaddle: function() {
-    if (Rmessage == 'up') {
+  playerMoveRightPaddle: function(direction) {
+    if (direction == 'up') {
       this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
-    } else if (Rmessage == 'down') {
+    } else if (direction == 'down') {
       this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
     } else {
       this.paddleRightSprite.body.velocity.y = 0;
     }
-    Rmessage = '';
   },
 
   aiMoveRightPaddle: function() {
