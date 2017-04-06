@@ -11,11 +11,9 @@ var paddle_choice;
 var playerID;
 
 var scores = ["0", "0"];
-var gameOver = false;
 var gameWinner;
 
 var ready = false;
-var newScore = false;
 
 var socket = io();
 
@@ -87,17 +85,14 @@ mainState.prototype = {
   update: function() {
     this.checkForChoice();
     this.checkForControl();
-    if (newScore) {
-      this.updateScores();
-      newScore = false;
-    }
-    if (gameOver) {
-      this.gameOverGraphics();
-      this.gameOverSettings();
-      socket.close()
-    }
   },
 
+  gameOver: function(data){
+    gameWinner = data;
+    this.gameOverGraphics();
+    this.gameOverSettings();
+    socket.close()
+  },
 
   checkForSpace: function(side) {
     if (!socket.connected) {
@@ -122,13 +117,11 @@ mainState.prototype = {
     left = false;
     right = false;
     startGame.onInputDown.add(this.startNewGame, this);
-    gameOver = false;
   },
 
   startNewGame: function() {
     socket.emit('connect')
     socket.emit('newGame')
-    newScore = false;
     ready = false;
     this.tf_scoreLeft.text = 0;
     this.tf_scoreRight.text = 0;
@@ -142,14 +135,11 @@ mainState.prototype = {
     //   console.log(data)
     // });
     socket.on('score', function(data) {
-      scores = data.score.split(',')
-      newScore = true;
-    });
+      this.updateScores(data);
+    }.bind(this));
     socket.on('winner', function(data) {
-      console.log(data)
-      gameWinner = data;
-      gameOver = true;
-    });
+      this.gameOver(data);
+    }.bind(this));
   },
 
   checkForChoice: function() {
@@ -174,7 +164,8 @@ mainState.prototype = {
     }
   },
 
-  updateScores: function() {
+  updateScores: function(data) {
+    scores = data.score.split(',')
     if (ready) {
       this.scoreLeft = scores[0]
       this.scoreRight = scores[1]
