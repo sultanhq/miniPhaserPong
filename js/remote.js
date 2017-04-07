@@ -75,7 +75,7 @@ mainState.prototype = {
   },
 
   create: function() {
-    console.log(socket.id);
+    // console.log(socket.id);
     this.createTitle();
     this.createSocketListeners();
     this.createPaddleChoiceButtons();
@@ -95,9 +95,10 @@ mainState.prototype = {
   },
 
   checkForSpace: function(side) {
-    if (!socket.connected) {
-      socket.connect()
-    }
+    // if (!socket.connected) {
+
+    // }
+    console.log(socket.id)
     socket.emit('check', {
       id: socket.id,
       side: side,
@@ -120,7 +121,7 @@ mainState.prototype = {
   },
 
   startNewGame: function() {
-    socket.emit('connect')
+    socket.connect()
     socket.emit('newGame')
     ready = false;
     this.tf_scoreLeft.text = 0;
@@ -158,9 +159,9 @@ mainState.prototype = {
 
   checkForControl: function() {
     if (paddle_up) {
-      socket.emit(paddleChoice + 'control message', 'up');
+      socket.emit(paddleChoice + 'control message', {id: socket.id ,direction: 'up',});
     } else if (paddle_down) {
-      socket.emit(paddleChoice + 'control message', 'down');
+      socket.emit(paddleChoice + 'control message', {id: socket.id ,direction: 'down',});
     }
   },
 
@@ -185,10 +186,10 @@ mainState.prototype = {
   },
 
   createPaddleButtons: function() {
-    if (paddleChoice ==== 'L') {
+    if (paddleChoice === 'L') {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY * 0.5, 'LUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.25, remote.world.centerY, 'LDownButton');
-    } else if (paddleChoice ==== 'R') {
+    } else if (paddleChoice === 'R') {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
