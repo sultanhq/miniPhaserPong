@@ -1,7 +1,7 @@
 var remoteProperties = {
   screenWidth: 300,
   screenHeight: 300,
-}
+};
 
 var left = false;
 var right = false;
@@ -58,12 +58,12 @@ var mainState = function(remote) {
   this.tf_scoreLeft;
   this.tf_scoreRight;
   this.startGame;
-}
+};
 
 mainState.prototype = {
   preload: function() {
     remote.stage.disableVisibilityChange = true;
-    remote.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
+    remote.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
     remote.load.image('leftButton', 'assets/left.png');
     remote.load.image('rightButton', 'assets/right.png');
@@ -87,18 +87,15 @@ mainState.prototype = {
     this.checkForControl();
   },
 
-  gameOver: function(data){
+  gameOver: function(data) {
     gameWinner = data;
     this.gameOverGraphics();
     this.gameOverSettings();
-    socket.close()
+    socket.close();
   },
 
   checkForSpace: function(side) {
-    // if (!socket.connected) {
-
-    // }
-    console.log(socket.id)
+    console.log(socket.id);
     socket.emit('check', {
       id: socket.id,
       side: side,
@@ -121,8 +118,8 @@ mainState.prototype = {
   },
 
   startNewGame: function() {
-    socket.connect()
-    socket.emit('newGame')
+    socket.connect();
+    socket.emit('newGame');
     ready = false;
     this.tf_scoreLeft.text = 0;
     this.tf_scoreRight.text = 0;
@@ -132,9 +129,6 @@ mainState.prototype = {
   },
 
   createSocketListeners: function() {
-    // socket.on('available', function(data) {
-    //   console.log(data)
-    // });
     socket.on('score', function(data) {
       this.updateScores(data);
     }.bind(this));
@@ -159,20 +153,26 @@ mainState.prototype = {
 
   checkForControl: function() {
     if (paddle_up) {
-      socket.emit(paddleChoice + 'control message', {id: socket.id ,direction: 'up',});
+      socket.emit(paddleChoice + 'control message', {
+        id: socket.id,
+        direction: 'up',
+      });
     } else if (paddle_down) {
-      socket.emit(paddleChoice + 'control message', {id: socket.id ,direction: 'down',});
+      socket.emit(paddleChoice + 'control message', {
+        id: socket.id,
+        direction: 'down',
+      });
     }
   },
 
   updateScores: function(data) {
-    scores = data.score.split(',')
+    scores = data.score.split(',');
     if (ready) {
-      this.scoreLeft = scores[0]
-      this.scoreRight = scores[1]
+      this.scoreLeft = scores[0];
+      this.scoreRight = scores[1];
       this.tf_scoreLeft.text = this.scoreLeft;
       this.tf_scoreRight.text = this.scoreRight;
-    };
+    }
   },
 
   createPaddleChoiceButtons: function() {
@@ -209,10 +209,10 @@ mainState.prototype = {
   createScoreBoard: function() {
     this.backgroundGraphics = remote.add.graphics(0, 0);
     this.backgroundGraphics.lineStyle(1, 0xFFFFFF, 1);
-    this.backgroundGraphics.moveTo(0, remote.world.height - 100)
-    this.backgroundGraphics.lineTo(remote.world.width, remote.world.height - 100)
-    this.backgroundGraphics.moveTo(remote.world.centerX, remote.world.height - 100)
-    this.backgroundGraphics.lineTo(remote.world.centerX, remote.world.height)
+    this.backgroundGraphics.moveTo(0, remote.world.height - 100);
+    this.backgroundGraphics.lineTo(remote.world.width, remote.world.height - 100);
+    this.backgroundGraphics.moveTo(remote.world.centerX, remote.world.height - 100);
+    this.backgroundGraphics.lineTo(remote.world.centerX, remote.world.height);
 
     this.tf_scoreLeft = remote.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.redFontStyle);
     this.tf_scoreLeft.anchor.set(0.5, 0);
@@ -229,32 +229,32 @@ mainState.prototype = {
 
 function actionOnLeftClick() {
   left = true;
-  paddleChoice = 'L'
-};
+  paddleChoice = 'L';
+}
 
 function actionOnRightClick() {
   right = true;
   paddleChoice = 'R';
-};
+}
 
 function actionOnUpClick() {
-  paddle_up = true
-};
+  paddle_up = true;
+}
 
 function actionOnUpRelease() {
-  paddle_up = false
-};
+  paddle_up = false;
+}
 
 function actionOnDownClick() {
-  paddle_down = true
-};
+  paddle_down = true;
+}
 
 function actionOnDownRelease() {
-  paddle_down = false
-};
+  paddle_down = false;
+}
 
 createRemote = function(remoteDiv) {
   remote = new Phaser.Game(remoteProperties.screenWidth, remoteProperties.screenHeight, Phaser.AUTO, remoteDiv);
   remote.state.add('main', mainState);
   remote.state.start('main');
-}
+};

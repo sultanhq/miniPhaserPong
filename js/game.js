@@ -8,6 +8,7 @@ var gameProperties = {
     id: '',
     side: '',
   }],
+
   maxPlayers: 2,
 
   screenWidth: 32,
@@ -18,7 +19,7 @@ var gameProperties = {
   paddleRight_x: 31,
   paddleLeftAi: true,
   paddleRightAi: true,
-  paddleVelocity: 100,
+  paddleAiVelocity: 14,
   paddleSegmentsMax: 4,
   paddleSegmentHeight: 1,
   paddleSegmentAngle: 15,
@@ -82,8 +83,7 @@ var mainState = function(game) {
   this.tf_winner_wins = {
     text: '',
   };
-
-}
+};
 
 mainState.prototype = {
   preload: function() {
@@ -145,7 +145,7 @@ mainState.prototype = {
     }.bind(this));
 
     socket.on('disconnect', function(id) {
-      this.removePlayer(id)
+      this.removePlayer(id);
     }.bind(this));
 
     socket.on('newGame', function() {
@@ -157,25 +157,18 @@ mainState.prototype = {
     console.log(data.id + ' Connecting');
     if (data.side === 'L') {
       if (gameProperties.players[0].side !== 'L') {
-        console.log('not full');
         gameProperties.players[0] = data;
         gameProperties.paddleLeftAi = false;
         this.paddleLeftSprite.body.velocity.y = 0;
-      } else {
-        console.log('full')
-      }
+      } else {}
     } else if (data.side === 'R') {
       if (gameProperties.players[1].side !== 'R') {
-        console.log('not full');
         gameProperties.players[1] = data;
         gameProperties.paddleRightAi = false;
         this.paddleRightSprite.body.velocity.y = 0;
-      } else {
-        console.log('full')
-      }
+      } else {}
     }
-    console.log(gameProperties.players)
-    this.startGame()
+    this.startGame();
   },
 
 
@@ -194,7 +187,7 @@ mainState.prototype = {
         side: '',
       };
     }
-    if (gameProperties.paddleLeftAi && gameProperties.paddleRightAi){
+    if (gameProperties.paddleLeftAi && gameProperties.paddleRightAi) {
       this.startDemo();
     }
   },
@@ -204,7 +197,7 @@ mainState.prototype = {
       gameProperties.paddleLeftAi = true;
     } else if (player.side === 'R') {
       gameProperties.paddleRightAi = true;
-    };
+    }
   },
 
   startDemo: function() {
@@ -260,9 +253,9 @@ mainState.prototype = {
   aiMoveLeftPaddle: function() {
     if (this.ballSprite.visible) {
       if (this.ballSprite.y <= this.paddleLeftSprite.body.y) {
-        this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
+        this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleAiVelocity;
       } else if (this.ballSprite.y >= this.paddleLeftSprite.body.y) {
-        this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
+        this.paddleLeftSprite.body.velocity.y = gameProperties.paddleAiVelocity;
       } else {
         this.paddleLeftSprite.body.velocity.y = 0;
       }
@@ -282,9 +275,9 @@ mainState.prototype = {
   aiMoveRightPaddle: function() {
     if (this.ballSprite.visible) {
       if (this.ballSprite.y <= this.paddleRightSprite.body.y) {
-        this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity * 0.14;
+        this.paddleRightSprite.body.velocity.y = -gameProperties.paddleAiVelocity;
       } else if (this.ballSprite.y >= this.paddleRightSprite.body.y) {
-        this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity * 0.14;
+        this.paddleRightSprite.body.velocity.y = gameProperties.paddleAiVelocity;
       } else {
         this.paddleRightSprite.body.velocity.y = 0;
       }
@@ -320,11 +313,9 @@ mainState.prototype = {
     if (this.ballSprite.x < 0) {
       this.missedSide = 'left';
       this.scoreRight++;
-      // console.log('Player 2 scores')
     } else if (this.ballSprite.x > gameProperties.screenWidth) {
       this.missedSide = 'right';
       this.scoreLeft++;
-      // console.log('Player 1 scores')
     }
     this.updateScoreTextFields();
     // this.resetPaddles();
@@ -361,7 +352,7 @@ mainState.prototype = {
   },
 
   broadcastGameOver: function(winner) {
-    socket.emit('winner', winner)
+    socket.emit('winner', winner);
   },
 
   resetScores: function() {
@@ -387,7 +378,7 @@ mainState.prototype = {
   },
 
   startBall: function() {
-    this.ballSprite.visible = true
+    this.ballSprite.visible = true;
 
     var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
 
@@ -430,4 +421,4 @@ createGame = function(gameDiv) {
   game = new Phaser.Game(gameProperties.screenWidth, gameProperties.screenHeight, Phaser.AUTO, gameDiv, null, false, false);
   game.state.add('main', mainState);
   game.state.start('main');
-}
+};
