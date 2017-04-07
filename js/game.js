@@ -1,7 +1,13 @@
 var socket = io();
 
 var gameProperties = {
-  players: [],
+  players: [{
+    id: '',
+    side: '',
+  }, {
+    id: '',
+    side: '',
+  }],
   maxPlayers: 2,
 
   screenWidth: 32,
@@ -65,8 +71,8 @@ var mainState = function(game) {
 
   this.missedSide;
 
-  this.scoreLeft;
-  this.scoreRight;
+  this.scoreLeft = 0;
+  this.scoreRight = 0;
 
   this.tf_scoreLeft;
   this.tf_scoreRight;
@@ -96,8 +102,7 @@ mainState.prototype = {
   },
 
   update: function() {
-    this.moveLeftPaddle();
-    this.moveRightPaddle();
+    this.moveAiPaddles();
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
   },
 
@@ -123,12 +128,16 @@ mainState.prototype = {
   },
 
   createSocketListeners: function() {
-    socket.on('Lcontrol message', function(direction) {
-      this.moveLeftPaddle(direction);
+    socket.on('Lcontrol message', function(data) {
+      if (data.id === gameProperties.players[0].id) {
+        this.playerMoveLeftPaddle(data.direction);
+      }
     }.bind(this));
 
-    socket.on('Rcontrol message', function(direction) {
-      this.moveRightPaddle(direction);
+    socket.on('Rcontrol message', function(data) {
+      if (data.id === gameProperties.players[1].id) {
+        this.playerMoveRightPaddle(data.direction);
+      }
     }.bind(this));
 
     socket.on('check', function(data) {
@@ -146,16 +155,30 @@ mainState.prototype = {
 
   addPlayer: function(data) {
     console.log(data.id + ' Connecting');
-    if (data.side ==== 'L') {
-      gameProperties.paddleLeftAi = false;
-    } else if (data.side ==== 'R') {
-      gameProperties.paddleRightAi = false;
+    if (data.side === 'L') {
+      if (gameProperties.players[0].side !== 'L') {
+        console.log('not full');
+        gameProperties.players[0] = data;
+        gameProperties.paddleLeftAi = false;
+        this.paddleLeftSprite.body.velocity.y = 0;
+      } else {
+        console.log('full')
+      }
+    } else if (data.side === 'R') {
+      if (gameProperties.players[1].side !== 'R') {
+        console.log('not full');
+        gameProperties.players[1] = data;
+        gameProperties.paddleRightAi = false;
+        this.paddleRightSprite.body.velocity.y = 0;
+      } else {
+        console.log('full')
+      }
     }
-    gameProperties.players.push(data);
-    // socket.emit('available', gameProperties.players);
     console.log(gameProperties.players)
     this.startGame()
   },
+
+
 
   removePlayer: function(id) {
     console.log(id + ' disconnected');
@@ -163,23 +186,30 @@ mainState.prototype = {
       return e.id;
     }).indexOf(id);
 
-    this.returnAi(gameProperties.players[pos]);
 
     if (pos > -1) {
-      gameProperties.players.splice(pos, 1);
+      this.returnAi(gameProperties.players[pos]);
+      gameProperties.players[pos] = {
+        id: '',
+        side: '',
+      };
+    }
+    if (gameProperties.paddleLeftAi && gameProperties.paddleRightAi){
+      this.startDemo();
     }
   },
 
-  returnAi: function(player){
+  returnAi: function(player) {
     if (player.side === 'L') {
       gameProperties.paddleLeftAi = true;
-    } else if (player.side === 'R'){
+    } else if (player.side === 'R') {
       gameProperties.paddleRightAi = true;
     };
   },
 
   startDemo: function() {
     this.resetBall();
+    this.resetScores();
     this.enablePaddles(false);
     this.enableBoundaires(true);
     game.input.onDown.add(this.startGame, this);
@@ -210,21 +240,20 @@ mainState.prototype = {
     game.physics.arcade.checkCollision.right = enabled;
   },
 
-  moveLeftPaddle: function(direction) {
+  moveAiPaddles: function() {
     if (gameProperties.paddleLeftAi) {
       this.aiMoveLeftPaddle();
-    } else {
-      this.playerMoveLeftPaddle(direction);
+    }
+    if (gameProperties.paddleRightAi) {
+      this.aiMoveRightPaddle();
     }
   },
 
   playerMoveLeftPaddle: function(direction) {
     if (direction === 'up') {
-      this.paddleLeftSprite.body.velocity.y = -gameProperties.paddleVelocity;
+      this.paddleLeftSprite.y--;
     } else if (direction === 'down') {
-      this.paddleLeftSprite.body.velocity.y = gameProperties.paddleVelocity;
-    } else {
-      this.paddleLeftSprite.body.velocity.y = 0;
+      this.paddleLeftSprite.y++;
     }
   },
 
@@ -242,21 +271,11 @@ mainState.prototype = {
     }
   },
 
-  moveRightPaddle: function(direction) {
-    if (gameProperties.paddleRightAi) {
-      this.aiMoveRightPaddle();
-    } else {
-      this.playerMoveRightPaddle(direction);
-    };
-  },
-
   playerMoveRightPaddle: function(direction) {
     if (direction === 'up') {
-      this.paddleRightSprite.body.velocity.y = -gameProperties.paddleVelocity;
+      this.paddleRightSprite.y--;
     } else if (direction === 'down') {
-      this.paddleRightSprite.body.velocity.y = gameProperties.paddleVelocity;
-    } else {
-      this.paddleRightSprite.body.velocity.y = 0;
+      this.paddleRightSprite.y++;
     }
   },
 
