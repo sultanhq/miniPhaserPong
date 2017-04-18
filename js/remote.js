@@ -193,6 +193,7 @@ mainState.prototype = {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
+
     this.button_up.anchor.set(0.5, 0.5);
     this.button_down.anchor.set(0.5, 0.5);
     this.button_up.onInputDown.add(actionOnUpClick, this);
@@ -230,11 +231,13 @@ mainState.prototype = {
 function actionOnLeftClick() {
   left = true;
   paddleChoice = 'L';
+  selectLeftPaddle.onInputDown.remove(actionOnLeftClick, this);
 }
 
 function actionOnRightClick() {
   right = true;
   paddleChoice = 'R';
+  selectRightPaddle.onInputDown.remove(actionOnRightClick, this);
 }
 
 function actionOnUpClick() {
