@@ -75,7 +75,6 @@ mainState.prototype = {
   },
 
   create: function() {
-    // console.log(socket.id);
     this.createTitle();
     this.createSocketListeners();
     this.createPaddleChoiceButtons();
@@ -94,9 +93,8 @@ mainState.prototype = {
     socket.close();
   },
 
-  checkForSpace: function(side) {
-    console.log(socket.id);
-    socket.emit('check', {
+  joinGame: function(side) {
+    socket.emit('join', {
       id: socket.id,
       side: side,
     });
@@ -141,11 +139,11 @@ mainState.prototype = {
     if (!ready) {
       if (left) {
         paddleChoice = 'L';
-        this.checkForSpace(paddleChoice);
+        this.joinGame(paddleChoice);
         this.createPaddleButtons();
       } else if (right) {
         paddleChoice = 'R';
-        this.checkForSpace(paddleChoice);
+        this.joinGame(paddleChoice);
         this.createPaddleButtons();
       } else return;
     }

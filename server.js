@@ -17,8 +17,8 @@ io.on('connection', function(socket) {
     io.emit('disconnect', socket.id);
   });
 
-  socket.on('check', function(data){
-    io.emit('check', data)
+  socket.on('join', function(data){
+    io.emit('join', data)
   });
 
   socket.on('available', function(msg) {
@@ -28,7 +28,7 @@ io.on('connection', function(socket) {
   socket.on('Lcontrol message', function(msg) {
     io.emit('Lcontrol message', msg);
   });
-  
+
   socket.on('Rcontrol message', function(msg) {
     io.emit('Rcontrol message', msg);
   });

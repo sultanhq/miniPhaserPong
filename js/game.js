@@ -140,7 +140,7 @@ mainState.prototype = {
       }
     }.bind(this));
 
-    socket.on('check', function(data) {
+    socket.on('join', function(data) {
       this.addPlayer(data);
     }.bind(this));
 
