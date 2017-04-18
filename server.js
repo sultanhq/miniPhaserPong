@@ -17,8 +17,16 @@ io.on('connection', function(socket) {
     io.emit('disconnect', socket.id);
   });
 
-  socket.on('join', function(data){
+  socket.on('join', function(data) {
     io.emit('join', data)
+  });
+
+  socket.on('check', function(data) {
+    io.emit('check', data)
+  });
+  
+  socket.on('spaces', function(data) {
+    io.emit('spaces', data)
   });
 
   socket.on('available', function(msg) {

@@ -9,7 +9,7 @@ var paddle_up = false;
 var paddle_down = false;
 var paddle_choice;
 var playerID;
-
+var spaces = ['', '']
 var scores = ["0", "0"];
 var gameWinner;
 
@@ -77,7 +77,9 @@ mainState.prototype = {
   create: function() {
     this.createTitle();
     this.createSocketListeners();
-    this.createPaddleChoiceButtons();
+    this.checkForSpace();
+
+    // this.createPaddleChoiceButtons();
     this.createScoreBoard();
   },
 
@@ -123,16 +125,34 @@ mainState.prototype = {
     this.tf_scoreRight.text = 0;
     startGame.onInputDown.remove(this.startNewGame, this);
     startGame.visible = false;
-    this.createPaddleChoiceButtons();
+    this.checkForSpace();
+
   },
 
   createSocketListeners: function() {
+    socket.on('spaces', function(data) {
+      if (!ready) {
+        this.updateSpaces(data);
+      }
+    }.bind(this));
     socket.on('score', function(data) {
       this.updateScores(data);
     }.bind(this));
     socket.on('winner', function(data) {
       this.gameOver(data);
     }.bind(this));
+  },
+
+  updateSpaces: function(data) {
+    console.log(data);
+    spaces = (data);
+    this.createPaddleChoiceButtons();
+  },
+
+  checkForSpace: function(data) {
+    socket.emit('check');
+
+    // this.createPaddleChoiceButtons();
   },
 
   checkForChoice: function() {
@@ -181,6 +201,15 @@ mainState.prototype = {
     selectRightPaddle = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'rightButton');
     selectRightPaddle.anchor.set(0.5, 0.5);
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
+
+    this.hidePaddleChoiceButtons();
+
+    if (spaces[0] === 'L') {
+      selectLeftPaddle.visible = true;
+    }
+    if (spaces[1] === 'R') {
+      selectRightPaddle.visible = true;
+    }
   },
 
   createPaddleButtons: function() {
@@ -199,10 +228,15 @@ mainState.prototype = {
     this.button_down.onInputDown.add(actionOnDownClick, this);
     this.button_down.onInputUp.add(actionOnDownRelease, this);
 
-    selectLeftPaddle.visible = false;
-    selectRightPaddle.visible = false;
+    // selectLeftPaddle.visible = false;
+    // selectRightPaddle.visible = false;
     this.title.text = 'Lets Play Pong!';
     ready = true;
+  },
+
+  hidePaddleChoiceButtons: function() {
+    selectLeftPaddle.visible = false;
+    selectRightPaddle.visible = false;
   },
 
   createScoreBoard: function() {
@@ -229,12 +263,14 @@ mainState.prototype = {
 function actionOnLeftClick() {
   left = true;
   paddleChoice = 'L';
+  this.hidePaddleChoiceButtons();
   selectLeftPaddle.onInputDown.remove(actionOnLeftClick, this);
 }
 
 function actionOnRightClick() {
   right = true;
   paddleChoice = 'R';
+  this.hidePaddleChoiceButtons();
   selectRightPaddle.onInputDown.remove(actionOnRightClick, this);
 }
 

@@ -9,6 +9,8 @@ var gameProperties = {
     side: '',
   }],
 
+  spaces: ['L', 'R'],
+
   maxPlayers: 2,
 
   screenWidth: 32,
@@ -140,6 +142,10 @@ mainState.prototype = {
       }
     }.bind(this));
 
+    socket.on('check', function() {
+      this.checkForSpace();
+    }.bind(this));
+
     socket.on('join', function(data) {
       this.addPlayer(data);
     }.bind(this));
@@ -153,15 +159,22 @@ mainState.prototype = {
     }.bind(this));
   },
 
+  checkForSpace: function() {
+    console.log('spaces ' + gameProperties.spaces)
+    socket.emit('spaces', gameProperties.spaces);
+  },
+
   addPlayer: function(data) {
     console.log(data.id + ' Connecting');
     if (data.side === 'L') {
+      gameProperties.spaces[0] = '';
       if (gameProperties.players[0].side !== 'L') {
         gameProperties.players[0] = data;
         gameProperties.paddleLeftAi = false;
         this.paddleLeftSprite.body.velocity.y = 0;
       } else {}
     } else if (data.side === 'R') {
+      gameProperties.spaces[1] = '';
       if (gameProperties.players[1].side !== 'R') {
         gameProperties.players[1] = data;
         gameProperties.paddleRightAi = false;
@@ -182,6 +195,7 @@ mainState.prototype = {
 
     if (pos > -1) {
       this.returnAi(gameProperties.players[pos]);
+      gameProperties.spaces[pos] =   gameProperties.players[pos].side;
       gameProperties.players[pos] = {
         id: '',
         side: '',
