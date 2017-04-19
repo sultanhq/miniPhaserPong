@@ -143,7 +143,7 @@ mainState.prototype = {
     }.bind(this));
 
     socket.on('check', function() {
-      this.checkForSpace();
+      this.sendAvailableSpaces();
     }.bind(this));
 
     socket.on('join', function(data) {
@@ -159,7 +159,7 @@ mainState.prototype = {
     }.bind(this));
   },
 
-  checkForSpace: function() {
+  sendAvailableSpaces: function() {
     console.log('spaces ' + gameProperties.spaces)
     socket.emit('spaces', gameProperties.spaces);
   },
@@ -181,6 +181,7 @@ mainState.prototype = {
         this.paddleRightSprite.body.velocity.y = 0;
       } else {}
     }
+    this.sendAvailableSpaces();
     this.startGame();
   },
 

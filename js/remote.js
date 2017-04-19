@@ -77,10 +77,9 @@ mainState.prototype = {
   create: function() {
     this.createTitle();
     this.createSocketListeners();
-    this.checkForSpace();
-
-    // this.createPaddleChoiceButtons();
+    this.sendCheckForSpace();
     this.createScoreBoard();
+    this.createPaddleChoiceButtons();
   },
 
   update: function() {
@@ -125,8 +124,7 @@ mainState.prototype = {
     this.tf_scoreRight.text = 0;
     startGame.onInputDown.remove(this.startNewGame, this);
     startGame.visible = false;
-    this.checkForSpace();
-
+    this.sendCheckForSpace();
   },
 
   createSocketListeners: function() {
@@ -136,23 +134,24 @@ mainState.prototype = {
       }
     }.bind(this));
     socket.on('score', function(data) {
-      this.updateScores(data);
+      if (ready) {
+        this.updateScores(data);
+      }
     }.bind(this));
     socket.on('winner', function(data) {
-      this.gameOver(data);
+      if (ready) {
+        this.gameOver(data);
+      }
     }.bind(this));
   },
 
   updateSpaces: function(data) {
-    console.log(data);
     spaces = (data);
-    this.createPaddleChoiceButtons();
+    this.showAvailableChoices();
   },
 
-  checkForSpace: function(data) {
+  sendCheckForSpace: function(data) {
     socket.emit('check');
-
-    // this.createPaddleChoiceButtons();
   },
 
   checkForChoice: function() {
@@ -201,7 +200,10 @@ mainState.prototype = {
     selectRightPaddle = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'rightButton');
     selectRightPaddle.anchor.set(0.5, 0.5);
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
+    this.hidePaddleChoiceButtons();
+  },
 
+  showAvailableChoices: function() {
     this.hidePaddleChoiceButtons();
 
     if (spaces[0] === 'L') {
@@ -228,8 +230,6 @@ mainState.prototype = {
     this.button_down.onInputDown.add(actionOnDownClick, this);
     this.button_down.onInputUp.add(actionOnDownRelease, this);
 
-    // selectLeftPaddle.visible = false;
-    // selectRightPaddle.visible = false;
     this.title.text = 'Lets Play Pong!';
     ready = true;
   },
