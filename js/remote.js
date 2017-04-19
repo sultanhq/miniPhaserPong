@@ -102,7 +102,7 @@ mainState.prototype = {
   },
 
   gameOverGraphics: function() {
-    this.title.text = gameWinner + ' Wins!';
+    this.updateTitleText(gameWinner + ' Wins!');
     this.button_up.visible = false;
     this.button_down.visible = false;
     startGame = remote.add.button(remote.world.centerX, remote.world.centerY, 'restart');
@@ -230,8 +230,12 @@ mainState.prototype = {
     this.button_down.onInputDown.add(actionOnDownClick, this);
     this.button_down.onInputUp.add(actionOnDownRelease, this);
 
-    this.title.text = 'Lets Play Pong!';
+    this.updateTitleText('Lets Play Pong!');
     ready = true;
+  },
+
+  updateTitleText: function(data) {
+    this.title.text = data
   },
 
   hidePaddleChoiceButtons: function() {
@@ -255,8 +259,9 @@ mainState.prototype = {
   },
 
   createTitle: function() {
-    this.title = remote.add.text(remote.world.centerX, remote.world.bottom, 'Select Paddle Side', fontAssets.fontStyle);
+    this.title = remote.add.text(remote.world.centerX, remote.world.bottom, '', fontAssets.fontStyle);
     this.title.anchor.set(0.5, 0);
+    this.updateTitleText('Select Paddle Side');
   },
 };
 
