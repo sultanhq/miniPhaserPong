@@ -9,7 +9,7 @@ var paddle_up = false;
 var paddle_down = false;
 var paddle_choice;
 var playerID;
-
+var spaces = ['', '']
 var scores = ["0", "0"];
 var gameWinner;
 
@@ -75,11 +75,11 @@ mainState.prototype = {
   },
 
   create: function() {
-    // console.log(socket.id);
     this.createTitle();
     this.createSocketListeners();
-    this.createPaddleChoiceButtons();
+    this.sendCheckForSpace();
     this.createScoreBoard();
+    this.createPaddleChoiceButtons();
   },
 
   update: function() {
@@ -94,9 +94,8 @@ mainState.prototype = {
     socket.close();
   },
 
-  checkForSpace: function(side) {
-    console.log(socket.id);
-    socket.emit('check', {
+  joinGame: function(side) {
+    socket.emit('join', {
       id: socket.id,
       side: side,
     });
@@ -125,27 +124,45 @@ mainState.prototype = {
     this.tf_scoreRight.text = 0;
     startGame.onInputDown.remove(this.startNewGame, this);
     startGame.visible = false;
-    this.createPaddleChoiceButtons();
+    this.sendCheckForSpace();
   },
 
   createSocketListeners: function() {
+    socket.on('spaces', function(data) {
+      if (!ready) {
+        this.updateSpaces(data);
+      }
+    }.bind(this));
     socket.on('score', function(data) {
-      this.updateScores(data);
+      if (ready) {
+        this.updateScores(data);
+      }
     }.bind(this));
     socket.on('winner', function(data) {
-      this.gameOver(data);
+      if (ready) {
+        this.gameOver(data);
+      }
     }.bind(this));
+  },
+
+  updateSpaces: function(data) {
+    spaces = (data);
+    this.showAvailableChoices();
+  },
+
+  sendCheckForSpace: function(data) {
+    socket.emit('check');
   },
 
   checkForChoice: function() {
     if (!ready) {
       if (left) {
         paddleChoice = 'L';
-        this.checkForSpace(paddleChoice);
+        this.joinGame(paddleChoice);
         this.createPaddleButtons();
       } else if (right) {
         paddleChoice = 'R';
-        this.checkForSpace(paddleChoice);
+        this.joinGame(paddleChoice);
         this.createPaddleButtons();
       } else return;
     }
@@ -183,6 +200,18 @@ mainState.prototype = {
     selectRightPaddle = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'rightButton');
     selectRightPaddle.anchor.set(0.5, 0.5);
     selectRightPaddle.onInputDown.add(actionOnRightClick, this);
+    this.hidePaddleChoiceButtons();
+  },
+
+  showAvailableChoices: function() {
+    this.hidePaddleChoiceButtons();
+
+    if (spaces[0] === 'L') {
+      selectLeftPaddle.visible = true;
+    }
+    if (spaces[1] === 'R') {
+      selectRightPaddle.visible = true;
+    }
   },
 
   createPaddleButtons: function() {
@@ -193,6 +222,7 @@ mainState.prototype = {
       this.button_up = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY * 0.5, 'RUpButton');
       this.button_down = remote.add.button(remoteProperties.screenWidth * 0.75, remote.world.centerY, 'RDownButton');
     }
+
     this.button_up.anchor.set(0.5, 0.5);
     this.button_down.anchor.set(0.5, 0.5);
     this.button_up.onInputDown.add(actionOnUpClick, this);
@@ -200,10 +230,13 @@ mainState.prototype = {
     this.button_down.onInputDown.add(actionOnDownClick, this);
     this.button_down.onInputUp.add(actionOnDownRelease, this);
 
-    selectLeftPaddle.visible = false;
-    selectRightPaddle.visible = false;
     this.title.text = 'Lets Play Pong!';
     ready = true;
+  },
+
+  hidePaddleChoiceButtons: function() {
+    selectLeftPaddle.visible = false;
+    selectRightPaddle.visible = false;
   },
 
   createScoreBoard: function() {
@@ -230,11 +263,15 @@ mainState.prototype = {
 function actionOnLeftClick() {
   left = true;
   paddleChoice = 'L';
+  this.hidePaddleChoiceButtons();
+  selectLeftPaddle.onInputDown.remove(actionOnLeftClick, this);
 }
 
 function actionOnRightClick() {
   right = true;
   paddleChoice = 'R';
+  this.hidePaddleChoiceButtons();
+  selectRightPaddle.onInputDown.remove(actionOnRightClick, this);
 }
 
 function actionOnUpClick() {
