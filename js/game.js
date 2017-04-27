@@ -1,4 +1,4 @@
-var socket = io();
+var pongSocket = io('/pong');
 
 var gameProperties = {
   players: [{
@@ -130,38 +130,37 @@ mainState.prototype = {
   },
 
   createSocketListeners: function() {
-    socket.on('Lcontrol message', function(data) {
+    pongSocket.on('Lcontrol message', function(data) {
       if (data.id === gameProperties.players[0].id) {
         this.playerMoveLeftPaddle(data.direction);
       }
     }.bind(this));
 
-    socket.on('Rcontrol message', function(data) {
+    pongSocket.on('Rcontrol message', function(data) {
       if (data.id === gameProperties.players[1].id) {
         this.playerMoveRightPaddle(data.direction);
       }
     }.bind(this));
 
-    socket.on('check', function() {
+    pongSocket.on('check', function() {
       this.sendAvailableSpaces();
     }.bind(this));
 
-    socket.on('join', function(data) {
+    pongSocket.on('join', function(data) {
       this.addPlayer(data);
     }.bind(this));
 
-    socket.on('disconnect', function(id) {
+    pongSocket.on('disconnect', function(id) {
       this.removePlayer(id);
     }.bind(this));
 
-    socket.on('newGame', function() {
+    pongSocket.on('newGame', function() {
       this.startGame();
     }.bind(this));
   },
 
   sendAvailableSpaces: function() {
-    console.log('spaces ' + gameProperties.spaces)
-    socket.emit('spaces', gameProperties.spaces);
+    pongSocket.emit('spaces', gameProperties.spaces);
   },
 
   addPlayer: function(data) {
@@ -185,8 +184,6 @@ mainState.prototype = {
     this.startGame();
   },
 
-
-
   removePlayer: function(id) {
     console.log(id + ' disconnected');
     var pos = gameProperties.players.map(function(e) {
@@ -196,14 +193,14 @@ mainState.prototype = {
 
     if (pos > -1) {
       this.returnAi(gameProperties.players[pos]);
-      gameProperties.spaces[pos] =   gameProperties.players[pos].side;
+      gameProperties.spaces[pos] = gameProperties.players[pos].side;
       gameProperties.players[pos] = {
         id: '',
         side: '',
       };
     }
     if (gameProperties.paddleLeftAi && gameProperties.paddleRightAi) {
-      this.startDemo();
+      // this.startDemo();
     }
   },
 
@@ -236,6 +233,7 @@ mainState.prototype = {
     game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, this.startBall, this);
     this.ballSprite.reset(game.world.centerX, game.rnd.between(0, gameProperties.screenHeight));
     this.ballSprite.visible = false;
+    // this.ballSprite.height = 2;
   },
 
   enablePaddles: function(enabled) {
@@ -333,7 +331,6 @@ mainState.prototype = {
       this.scoreLeft++;
     }
     this.updateScoreTextFields();
-    // this.resetPaddles();
     this.broadcastScore();
     this.checkForWinner();
   },
@@ -342,11 +339,11 @@ mainState.prototype = {
     if (this.scoreLeft >= gameProperties.scoreToWin) {
       fontAssets.winFontStyle.fill = '#FF0000';
       this.displayWinner("Red");
-      this.startDemo();
+      game.time.events.add(Phaser.Timer.SECOND * 7, this.startDemo, this);
     } else if (this.scoreRight >= gameProperties.scoreToWin) {
       fontAssets.winFontStyle.fill = '#00FF00';
       this.displayWinner("Green");
-      this.startDemo();
+      game.time.events.add(Phaser.Timer.SECOND * 7, this.startDemo, this);
     } else {
       this.resetBall();
     }
@@ -361,13 +358,13 @@ mainState.prototype = {
   },
 
   broadcastScore: function() {
-    socket.emit('score', {
+    pongSocket.emit('score', {
       score: (this.scoreLeft + ',' + this.scoreRight)
     });
   },
 
   broadcastGameOver: function(winner) {
-    socket.emit('winner', winner);
+    pongSocket.emit('winner', winner);
   },
 
   resetScores: function() {
