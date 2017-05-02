@@ -15,7 +15,7 @@ var gameWinner;
 
 var ready = false;
 
-var socket = io();
+var pongSocket = io('/pong');
 
 var fontAssets = {
 
@@ -57,7 +57,7 @@ var mainState = function(remote) {
   this.scoreRight = '0';
   this.tf_scoreLeft;
   this.tf_scoreRight;
-  this.startGame;
+  this.restart;
 };
 
 mainState.prototype = {
@@ -83,7 +83,6 @@ mainState.prototype = {
   },
 
   update: function() {
-    this.checkForChoice();
     this.checkForControl();
   },
 
@@ -91,12 +90,12 @@ mainState.prototype = {
     gameWinner = data;
     this.gameOverGraphics();
     this.gameOverSettings();
-    socket.close();
+    pongSocket.close();
   },
 
   joinGame: function(side) {
-    socket.emit('join', {
-      id: socket.id,
+    pongSocket.emit('join', {
+      id: pongSocket.id,
       side: side,
     });
   },
@@ -105,40 +104,40 @@ mainState.prototype = {
     this.updateTitleText(gameWinner + ' Wins!');
     this.button_up.visible = false;
     this.button_down.visible = false;
-    startGame = remote.add.button(remote.world.centerX, remote.world.centerY, 'restart');
-    startGame.anchor.set(0.5, 0.5);
-    startGame.visible = true;
+    restart = remote.add.button(remote.world.centerX, remote.world.centerY, 'restart');
+    restart.anchor.set(0.5, 0.5);
+    restart.visible = true;
   },
 
   gameOverSettings: function() {
     left = false;
     right = false;
-    startGame.onInputDown.add(this.startNewGame, this);
+    restart.onInputDown.add(this.startNewGame, this);
   },
 
   startNewGame: function() {
-    socket.connect();
-    socket.emit('newGame');
+    pongSocket.connect();
+    this.showScoreBoard(false);
     ready = false;
     this.tf_scoreLeft.text = 0;
     this.tf_scoreRight.text = 0;
-    startGame.onInputDown.remove(this.startNewGame, this);
-    startGame.visible = false;
+    restart.onInputDown.remove(this.startNewGame, this);
+    restart.visible = false;
     this.sendCheckForSpace();
   },
 
   createSocketListeners: function() {
-    socket.on('spaces', function(data) {
+    pongSocket.on('spaces', function(data) {
       if (!ready) {
         this.updateSpaces(data);
       }
     }.bind(this));
-    socket.on('score', function(data) {
+    pongSocket.on('score', function(data) {
       if (ready) {
         this.updateScores(data);
       }
     }.bind(this));
-    socket.on('winner', function(data) {
+    pongSocket.on('winner', function(data) {
       if (ready) {
         this.gameOver(data);
       }
@@ -151,7 +150,7 @@ mainState.prototype = {
   },
 
   sendCheckForSpace: function(data) {
-    socket.emit('check');
+    pongSocket.emit('check');
   },
 
   checkForChoice: function() {
@@ -170,13 +169,13 @@ mainState.prototype = {
 
   checkForControl: function() {
     if (paddle_up) {
-      socket.emit(paddleChoice + 'control message', {
-        id: socket.id,
+      pongSocket.emit(paddleChoice + 'control message', {
+        id: pongSocket.id,
         direction: 'up',
       });
     } else if (paddle_down) {
-      socket.emit(paddleChoice + 'control message', {
-        id: socket.id,
+      pongSocket.emit(paddleChoice + 'control message', {
+        id: pongSocket.id,
         direction: 'down',
       });
     }
@@ -206,6 +205,7 @@ mainState.prototype = {
   showAvailableChoices: function() {
     this.hidePaddleChoiceButtons();
 
+    this.updateTitleText('Select Paddle Side');
     if (spaces[0] === 'L') {
       selectLeftPaddle.visible = true;
     }
@@ -230,12 +230,14 @@ mainState.prototype = {
     this.button_down.onInputDown.add(actionOnDownClick, this);
     this.button_down.onInputUp.add(actionOnDownRelease, this);
 
-    this.updateTitleText('Lets Play Pong!');
+    this.updateTitleText("Let's Play Pong!");
+
+    this.showScoreBoard(true);
     ready = true;
   },
 
   updateTitleText: function(data) {
-    this.title.text = data
+    this.title.text = data;
   },
 
   hidePaddleChoiceButtons: function() {
@@ -244,24 +246,35 @@ mainState.prototype = {
   },
 
   createScoreBoard: function() {
+    this.scoreBoard = remote.add.group();
     this.backgroundGraphics = remote.add.graphics(0, 0);
     this.backgroundGraphics.lineStyle(1, 0xFFFFFF, 1);
     this.backgroundGraphics.moveTo(0, remote.world.height - 100);
     this.backgroundGraphics.lineTo(remote.world.width, remote.world.height - 100);
     this.backgroundGraphics.moveTo(remote.world.centerX, remote.world.height - 100);
     this.backgroundGraphics.lineTo(remote.world.centerX, remote.world.height);
-
     this.tf_scoreLeft = remote.add.text(fontAssets.scoreLeft_x, fontAssets.scoreTop_y, '0', fontAssets.redFontStyle);
     this.tf_scoreLeft.anchor.set(0.5, 0);
 
     this.tf_scoreRight = remote.add.text(fontAssets.scoreRight_x, fontAssets.scoreTop_y, '0', fontAssets.greenFontStyle);
     this.tf_scoreRight.anchor.set(0.5, 0);
+
+    this.scoreBoard.add(this.backgroundGraphics)
+    this.scoreBoard.add(this.tf_scoreLeft)
+    this.scoreBoard.add(this.tf_scoreRight)
+
+    this.showScoreBoard(false);
+
+  },
+
+  showScoreBoard: function(bool) {
+    this.scoreBoard.visible = bool
   },
 
   createTitle: function() {
     this.title = remote.add.text(remote.world.centerX, remote.world.bottom, '', fontAssets.fontStyle);
     this.title.anchor.set(0.5, 0);
-    this.updateTitleText('Select Paddle Side');
+    this.updateTitleText('Searching for Games');
   },
 };
 
@@ -269,14 +282,17 @@ function actionOnLeftClick() {
   left = true;
   paddleChoice = 'L';
   this.hidePaddleChoiceButtons();
-  selectLeftPaddle.onInputDown.remove(actionOnLeftClick, this);
+  this.checkForChoice();
+  pongSocket.emit('newGame');
+
 }
 
 function actionOnRightClick() {
   right = true;
   paddleChoice = 'R';
   this.hidePaddleChoiceButtons();
-  selectRightPaddle.onInputDown.remove(actionOnRightClick, this);
+  this.checkForChoice();
+  pongSocket.emit('newGame');
 }
 
 function actionOnUpClick() {

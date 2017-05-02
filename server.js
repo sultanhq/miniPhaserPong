@@ -9,48 +9,51 @@ server.listen(8000, '0.0.0.0', function() {
   console.log('listening on *:8000');
 });
 
-io.on('connection', function(socket) {
-  console.log('a user connected ' + socket.id);
+var pong = io.of('/pong');
+pong.on('connection', function(pongSocket) {
 
-  socket.on('disconnect', function() {
-    console.log('user disconnected');
-    io.emit('disconnect', socket.id);
+  console.log('a Pong user connected ' + pongSocket.id);
+
+  pongSocket.on('disconnect', function() {
+    console.log('Pong user disconnected ' + pongSocket.id);
+    id = (pongSocket.id).slice(6);
+    pong.emit('disconnect', id);
   });
 
-  socket.on('join', function(data) {
-    io.emit('join', data)
+  pongSocket.on('join', function(data) {
+    pong.emit('join', data)
   });
 
-  socket.on('check', function(data) {
-    io.emit('check', data)
-  });
-  
-  socket.on('spaces', function(data) {
-    io.emit('spaces', data)
+  pongSocket.on('check', function(data) {
+    pong.emit('check', data)
   });
 
-  socket.on('available', function(msg) {
-    io.emit('available', msg);
+  pongSocket.on('spaces', function(data) {
+    pong.emit('spaces', data)
   });
 
-  socket.on('Lcontrol message', function(msg) {
-    io.emit('Lcontrol message', msg);
+  pongSocket.on('available', function(msg) {
+    pong.emit('available', msg);
   });
 
-  socket.on('Rcontrol message', function(msg) {
-    io.emit('Rcontrol message', msg);
+  pongSocket.on('Lcontrol message', function(msg) {
+    pong.emit('Lcontrol message', msg);
   });
 
-  socket.on('score', function(msg) {
-    io.emit('score', msg);
+  pongSocket.on('Rcontrol message', function(msg) {
+    pong.emit('Rcontrol message', msg);
   });
 
-  socket.on('winner', function(msg) {
-    io.emit('winner', msg);
+  pongSocket.on('score', function(msg) {
+    pong.emit('score', msg);
   });
 
-  socket.on('newGame', function(msg) {
-    io.emit('newGame', msg);
+  pongSocket.on('winner', function(msg) {
+    pong.emit('winner', msg);
+  });
+
+  pongSocket.on('newGame', function(msg) {
+    pong.emit('newGame', msg);
   });
 
 });
