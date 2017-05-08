@@ -1,12 +1,15 @@
 var express = require('express'),
   app = express(app),
   server = require('http').createServer(app),
-  io = require('socket.io')(server);
+  io = require('socket.io')(server),
+  ip = require('ip'),
+  currentIp = ip.address(),
+  serverPort = 8080;
 
 app.use(express.static(__dirname));
 
-server.listen(8000, '0.0.0.0', function() {
-  console.log('listening on *:8000');
+server.listen(serverPort, '0.0.0.0', function() {
+  console.log('listening on *:' + serverPort + ' & ' + currentIp);
 });
 
 var pong = io.of('/pong');
@@ -15,8 +18,8 @@ pong.on('connection', function(pongSocket) {
   console.log('a Pong user connected ' + pongSocket.id);
 
   pongSocket.on('disconnect', function() {
-    console.log('Pong user disconnected ' + pongSocket.id);
     id = (pongSocket.id).slice(6);
+    console.log('Pong user disconnected ' + id);
     pong.emit('disconnect', id);
   });
 
