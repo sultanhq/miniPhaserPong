@@ -170,12 +170,7 @@ mainState.prototype = {
   },
 
   removeSocketListeners: function() {
-    pongSocket.off('Lcontrol message');
-    pongSocket.off('Rcontrol message');
-    pongSocket.off('check');
-    pongSocket.off('join');
-    pongSocket.off('disconnect');
-    pongSocket.off('newGame');
+    pongSocket.removeAllListeners();
   },
 
   sendAvailableSpaces: function() {
