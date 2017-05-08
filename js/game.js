@@ -108,6 +108,10 @@ mainState.prototype = {
     game.physics.arcade.overlap(this.ballSprite, this.paddleGroup, this.collideWithPaddle, null, this);
   },
 
+  shutdown: function() {
+
+  },
+
   initPhysics: function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.enable(this.ballSprite);
@@ -190,18 +194,21 @@ mainState.prototype = {
       return e.id;
     }).indexOf(id);
 
-
     if (pos > -1) {
-      this.returnAi(gameProperties.players[pos]);
-      gameProperties.spaces[pos] = gameProperties.players[pos].side;
-      gameProperties.players[pos] = {
-        id: '',
-        side: '',
-      };
+      this.deletePlayerFromArray(pos)
     }
     if (gameProperties.paddleLeftAi && gameProperties.paddleRightAi) {
       // this.startDemo();
     }
+  },
+
+  deletePlayerFromArray: function(position) {
+    this.returnAi(gameProperties.players[pos]);
+    gameProperties.spaces[pos] = gameProperties.players[pos].side;
+    gameProperties.players[pos] = {
+      id: '',
+      side: '',
+    };
   },
 
   returnAi: function(player) {
