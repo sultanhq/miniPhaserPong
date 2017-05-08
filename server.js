@@ -14,12 +14,11 @@ server.listen(serverPort, '0.0.0.0', function() {
 
 var pong = io.of('/pong');
 pong.on('connection', function(pongSocket) {
-
-  console.log('a Pong user connected ' + pongSocket.id);
+  id = (pongSocket.id).slice(6);
+  console.log('a Pong user connected ' + id);
 
   pongSocket.on('disconnect', function() {
-    id = (pongSocket.id).slice(6);
-    console.log('Pong user disconnected ' + id);
+    console.log('Pong user disconnected ' +   id);
     pong.emit('disconnect', id);
   });
 
